@@ -10,6 +10,7 @@ import UIKit
 class ImageCell: UICollectionViewCell {
     
     let imageView = UIImageView()
+    let checkImage = UIImageView()
 
     
     override init(frame: CGRect) {
@@ -24,13 +25,22 @@ class ImageCell: UICollectionViewCell {
     private func setupViews() {
         // Add the image view to the cell's content view and set its constraints
         contentView.addSubview(imageView)
+        contentView.addSubview(checkImage)
         
         imageView.translatesAutoresizingMaskIntoConstraints = false
+
         NSLayoutConstraint.activate([
-            imageView.topAnchor.constraint(equalTo: contentView.topAnchor),
-            imageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
-            imageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            imageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor)
+            imageView.topAnchor.constraint(equalTo: self.topAnchor),
+            imageView.bottomAnchor.constraint(equalTo: self.bottomAnchor),
+            imageView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
+            imageView.trailingAnchor.constraint(equalTo: self.trailingAnchor)
+        ])
+        
+        checkImage.translatesAutoresizingMaskIntoConstraints = false
+        checkImage.frame.size = CGSize(width: self.frame.width/7, height: self.frame.height/7)
+        NSLayoutConstraint.activate([
+            checkImage.topAnchor.constraint(equalTo: self.topAnchor),
+            checkImage.trailingAnchor.constraint(equalTo: self.trailingAnchor)
         ])
         
     }

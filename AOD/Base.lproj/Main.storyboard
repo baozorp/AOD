@@ -16,46 +16,82 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="okI-6s-7K0">
-                                <rect key="frame" x="98.333333333333329" y="340.33333333333331" width="196.33333333333337" height="196.33333333333331"/>
+                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleAspectFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="okI-6s-7K0">
+                                <rect key="frame" x="0.0" y="242" width="393" height="393"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <constraints>
                                     <constraint firstAttribute="width" secondItem="okI-6s-7K0" secondAttribute="height" multiplier="1:1" id="G1b-PW-0r0"/>
                                 </constraints>
                                 <collectionViewFlowLayout key="collectionViewLayout" scrollDirection="horizontal" minimumLineSpacing="10" minimumInteritemSpacing="10" id="GvN-JA-m2D">
-                                    <size key="itemSize" width="200.00000000000003" height="190"/>
+                                    <size key="itemSize" width="198" height="185.33333333333331"/>
                                     <size key="headerReferenceSize" width="0.0" height="0.0"/>
                                     <size key="footerReferenceSize" width="0.0" height="0.0"/>
                                     <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                 </collectionViewFlowLayout>
-                                <cells>
-                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" reuseIdentifier="Cell" id="K7j-43-xJf">
-                                        <rect key="frame" x="0.0" y="3" width="200.00000000000003" height="190"/>
-                                        <autoresizingMask key="autoresizingMask"/>
-                                        <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO">
-                                            <rect key="frame" x="0.0" y="0.0" width="200.00000000000003" height="190"/>
-                                            <autoresizingMask key="autoresizingMask"/>
-                                        </view>
-                                        <size key="customSize" width="200.00000000000003" height="190"/>
-                                    </collectionViewCell>
-                                </cells>
+                                <cells/>
                             </collectionView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="okI-6s-7K0" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="4Q6-Kx-K8x"/>
-                            <constraint firstItem="okI-6s-7K0" firstAttribute="width" secondItem="8bC-Xf-vdC" secondAttribute="width" multiplier="10:20" id="XfA-zB-zJL"/>
+                            <constraint firstItem="okI-6s-7K0" firstAttribute="width" secondItem="8bC-Xf-vdC" secondAttribute="width" multiplier="10:10" id="XfA-zB-zJL"/>
                             <constraint firstItem="okI-6s-7K0" firstAttribute="centerY" secondItem="6Tk-OE-BBY" secondAttribute="centerY" id="nCK-tM-YNC"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="collectionView" destination="okI-6s-7K0" id="saM-4S-LcP"/>
+                        <segue destination="age-zO-5J8" kind="showDetail" identifier="identer" id="HIl-8O-D9Z"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="20.610687022900763" y="3.5211267605633805"/>
+            <point key="canvasLocation" x="-222" y="-18"/>
+        </scene>
+        <!--Выбор изображений-->
+        <scene sceneID="pOC-Wk-3zu">
+            <objects>
+                <collectionViewController id="pQ7-iJ-jF3" customClass="ImagesViewController" customModule="AOD" customModuleProvider="target" sceneMemberID="viewController">
+                    <collectionView key="view" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" id="eVA-FQ-dgS">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="783"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" sectionInsetReference="layoutMargins" id="iy9-VQ-Q2d">
+                            <size key="itemSize" width="128" height="128"/>
+                            <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                            <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                            <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                        </collectionViewFlowLayout>
+                        <cells/>
+                        <connections>
+                            <outlet property="dataSource" destination="pQ7-iJ-jF3" id="zPA-DN-Eij"/>
+                            <outlet property="delegate" destination="pQ7-iJ-jF3" id="5QU-ET-L4R"/>
+                        </connections>
+                    </collectionView>
+                    <navigationItem key="navigationItem" title="Выбор изображений" id="evS-06-s39"/>
+                </collectionViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="UiJ-RJ-IOy" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1836" y="-18"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="0Rm-xg-Pcr">
+            <objects>
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="age-zO-5J8" sceneMemberID="viewController">
+                    <toolbarItems/>
+                    <navigationItem key="navigationItem" customizationIdentifier="" id="Vnz-gk-y1k"/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="Zt2-kB-ZiC">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="56"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="pQ7-iJ-jF3" kind="relationship" relationship="rootViewController" id="fuF-oy-ydb"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="p9F-eW-hMy" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="828" y="-18"/>
         </scene>
     </scenes>
     <resources>
