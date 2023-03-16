@@ -17,10 +17,10 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleAspectFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="okI-6s-7K0">
-                                <rect key="frame" x="0.0" y="242" width="393" height="393"/>
+                                <rect key="frame" x="0.0" y="340.33333333333331" width="393" height="196.33333333333331"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" secondItem="okI-6s-7K0" secondAttribute="height" multiplier="1:1" id="G1b-PW-0r0"/>
+                                    <constraint firstAttribute="width" secondItem="okI-6s-7K0" secondAttribute="height" multiplier="2:1" id="G1b-PW-0r0"/>
                                 </constraints>
                                 <collectionViewFlowLayout key="collectionViewLayout" scrollDirection="horizontal" minimumLineSpacing="10" minimumInteritemSpacing="10" id="GvN-JA-m2D">
                                     <size key="itemSize" width="198" height="185.33333333333331"/>
@@ -42,7 +42,7 @@
                     <navigationItem key="navigationItem" id="DZu-FZ-K2I"/>
                     <connections>
                         <outlet property="collectionView" destination="okI-6s-7K0" id="saM-4S-LcP"/>
-                        <segue destination="age-zO-5J8" kind="show" identifier="identer" id="HIl-8O-D9Z"/>
+                        <segue destination="age-zO-5J8" kind="presentation" identifier="identer" id="HIl-8O-D9Z"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
@@ -56,7 +56,7 @@
                     <collectionView key="view" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" id="eVA-FQ-dgS">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="783"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" sectionInsetReference="layoutMargins" id="iy9-VQ-Q2d">
                             <size key="itemSize" width="128" height="128"/>
                             <size key="headerReferenceSize" width="0.0" height="0.0"/>
@@ -73,7 +73,7 @@
                 </collectionViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="UiJ-RJ-IOy" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1836" y="-18"/>
+            <point key="canvasLocation" x="1653" y="-18"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="0Rm-xg-Pcr">

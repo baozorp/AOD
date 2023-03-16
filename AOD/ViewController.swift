@@ -11,14 +11,23 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
 
     @IBOutlet weak var collectionView: UICollectionView!
     
+    var imageArray: [UIImage] = []
+    var systemImages: [String] = ["trash", "tree", "globe.central.south.asia", "cloud.sun.bolt.circle"]
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         guard let destNC = segue.destination as? UINavigationController else {return}
-        //guard let destVC = destNC.viewControllers.first as? ImagesViewController else {return}
-        destNC.navigationBar.backgroundColor = .darkGray
+        guard let destVC = destNC.viewControllers.first as? ImagesViewController else {return}
+        destVC.delegate = self
+        destVC.imageArray = imageArray
+        
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        imageArray.append(UIImage(named: "tree")!)
+        for i in systemImages{
+            imageArray.append(UIImage(systemName: i)!)
+        }
         view.backgroundColor = .black
         settingOfCollectionView()
     }
@@ -45,17 +54,17 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
         }
     }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
-        return UIEdgeInsets(top: 0, left: collectionView.frame.width / 4, bottom: 0, right: 0)
+        return UIEdgeInsets(top: 0, left: collectionView.frame.width / 4, bottom: 0, right: collectionView.frame.width / 4)
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 100
+        return imageArray.count
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "imageCell", for: indexPath) as! ImageCell
         cell.imageView.contentMode = .scaleAspectFit
-        cell.imageView.image = UIImage(named: "tree")
+        cell.imageView.image = imageArray[indexPath.row]
         cell.imageView.layer.cornerRadius = 20
 
         return cell
@@ -80,8 +89,19 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
 extension ViewController: UICollectionViewDelegateFlowLayout{
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: collectionView.frame.width/2, height: collectionView.frame.height/2)
+        return CGSize(width: collectionView.frame.height, height: collectionView.frame.height)
     }
 
 }
 
+extension ViewController: ImagesViewControllerDelegate{
+    
+    func saveImage(_ image: UIImage) {
+        imageArray.append(image)
+        collectionView.reloadData()
+    }
+    func deleteImage(_ image: UIImage) {
+        imageArray.remove(at: imageArray.firstIndex(of: image)!)
+        collectionView.reloadData()
+    }
+}
