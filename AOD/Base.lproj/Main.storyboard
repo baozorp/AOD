@@ -39,9 +39,10 @@
                             <constraint firstItem="okI-6s-7K0" firstAttribute="centerY" secondItem="6Tk-OE-BBY" secondAttribute="centerY" id="nCK-tM-YNC"/>
                         </constraints>
                     </view>
+                    <navigationItem key="navigationItem" id="DZu-FZ-K2I"/>
                     <connections>
                         <outlet property="collectionView" destination="okI-6s-7K0" id="saM-4S-LcP"/>
-                        <segue destination="age-zO-5J8" kind="showDetail" identifier="identer" id="HIl-8O-D9Z"/>
+                        <segue destination="age-zO-5J8" kind="show" identifier="identer" id="HIl-8O-D9Z"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>

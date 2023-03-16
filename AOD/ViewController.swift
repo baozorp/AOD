@@ -62,14 +62,18 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
     }
     
     func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
-        let cellWidth = collectionView.visibleCells.first?.frame.width ?? 0
-        let currentPage = targetContentOffset.pointee.x / cellWidth / 2
-        let nextPage = currentPage.rounded()
-        print(nextPage)
-        print(targetContentOffset.pointee.x)
-        guard let flowLayout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout else {return}
-        let spacing = flowLayout.minimumLineSpacing // расстояние между ячейками
-        targetContentOffset.pointee.x = nextPage * (cellWidth + spacing)
+        guard let flowLayout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout,
+              let firstVisibleCell = collectionView.visibleCells.first else {
+            return
+        }
+        
+        let cellWidth = firstVisibleCell.frame.width
+        let spacing = flowLayout.minimumLineSpacing
+        let sectionInset = flowLayout.sectionInset.left + flowLayout.sectionInset.right
+        
+        let currentPage = targetContentOffset.pointee.x / (cellWidth + spacing + sectionInset)
+        let nextPage = round(currentPage)
+        targetContentOffset.pointee.x = nextPage * (cellWidth + spacing + sectionInset)
     }
 
 }
