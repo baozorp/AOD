@@ -33,6 +33,10 @@ class ImagesViewController: UICollectionViewController {
         getImagesFromCoreData()
     }
     
+    override func viewDidDisappear(_ animated: Bool) {
+        dismiss(animated: false)
+    }
+    
     // MARK: - Private Functions
     
     private func configureNavigationBar() {

@@ -30,7 +30,7 @@ class ImageCell: UICollectionViewCell {
         contentView.addSubview(pictureView)
         contentView.addSubview(checkStatus)
         
-        pictureView.contentMode = .scaleToFill
+        pictureView.contentMode = .scaleAspectFit
         pictureView.layer.cornerRadius = 20
         
         checkStatus.isHidden = true

@@ -13,7 +13,6 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
     @IBOutlet weak var collectionView: UICollectionView!
     
     var imageArray: [Image] = []
-    var systemImages: [String] = ["trash", "tree", "globe.central.south.asia", "cloud.sun.bolt.circle"]
     var context: NSManagedObjectContext!
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -34,19 +33,17 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
             print(error.localizedDescription)
         }
         
+        let systemImages: [String] = ["heart.square.fill", "tree", "globe.central.south.asia", "trash", "cloud.sun.bolt.circle"]
+        
         for i in systemImages{
             let image = Image(context: context)
-            let symbolConfiguration = UIImage.SymbolConfiguration(pointSize: 100)
+            let symbolConfiguration = UIImage.SymbolConfiguration(pointSize: collectionView.frame.height)
             let systemImage = UIImage(systemName: i, withConfiguration: symbolConfiguration)?.withTintColor(.white)
             image.picture = systemImage?.pngData()
             image.wasChosen = true
         }
         
-        do{
-            try context.save()
-        }catch let error as NSError{
-            print(error.localizedDescription)
-        }
+        saveContext()
     }
     
     override func viewDidLoad() {
@@ -126,6 +123,16 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
         targetContentOffset.pointee.x = nextPage * (cellWidth + spacing + sectionInset)
     }
     
+    // Mark: - CoreData saver
+    
+    private func saveContext(){
+        do{
+            try context.save()
+        }catch let error as NSError{
+            print(error.localizedDescription)
+        }
+    }
+    
 }
 extension ViewController: UICollectionViewDelegateFlowLayout{
     
@@ -139,21 +146,13 @@ extension ViewController: ImagesViewControllerDelegate{
     func saveImage(_ image: Image) {
         imageArray.append(image)
         image.wasChosen = true
-        do{
-            try context.save()
-        }catch let error as NSError{
-            print(error.localizedDescription)
-        }
+        saveContext()
         collectionView.reloadData()
     }
     func deleteImage(_ image: Image) {
         imageArray.remove(at: imageArray.firstIndex(of: image)!)
         image.wasChosen = false
-        do{
-            try context.save()
-        }catch let error as NSError{
-            print(error.localizedDescription)
-        }
+        saveContext()
         collectionView.reloadData()
     }
 }
