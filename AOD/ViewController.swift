@@ -6,30 +6,67 @@
 //
 
 import UIKit
+import CoreData
 
 class ViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate{
-
+    
     @IBOutlet weak var collectionView: UICollectionView!
     
-    var imageArray: [UIImage] = []
+    var imageArray: [Image] = []
     var systemImages: [String] = ["trash", "tree", "globe.central.south.asia", "cloud.sun.bolt.circle"]
+    var context: NSManagedObjectContext!
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         guard let destNC = segue.destination as? UINavigationController else {return}
         guard let destVC = destNC.viewControllers.first as? ImagesViewController else {return}
         destVC.delegate = self
-        destVC.imageArray = imageArray
+        destVC.context = context
+        destVC.chosenImages = imageArray
+    }
+    
+    private func firstStart(){
         
+        let fetchRequest = Image.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "picture != nil")
+        do{
+            guard try context.fetch(fetchRequest).count == 0 else {return}
+        }catch let error as NSError{
+            print(error.localizedDescription)
+        }
+        
+        for i in systemImages{
+            let image = Image(context: context)
+            let symbolConfiguration = UIImage.SymbolConfiguration(pointSize: 100)
+            let systemImage = UIImage(systemName: i, withConfiguration: symbolConfiguration)?.withTintColor(.white)
+            image.picture = systemImage?.pngData()
+            image.wasChosen = true
+        }
+        
+        do{
+            try context.save()
+        }catch let error as NSError{
+            print(error.localizedDescription)
+        }
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        imageArray.append(UIImage(named: "tree")!)
-        for i in systemImages{
-            imageArray.append(UIImage(systemName: i)!)
-        }
+        firstStart()
         view.backgroundColor = .black
         settingOfCollectionView()
+        getImagesFromCoreData()
+    }
+    
+    private func getImagesFromCoreData(){
+        let fetchRequest = Image.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "wasChosen == %@", argumentArray: [true])
+        do{
+            for i in try context.fetch(fetchRequest){
+                imageArray.append(i)
+            }
+        }catch let error as NSError{
+            print(error.localizedDescription)
+        }
     }
     
     private func settingOfCollectionView(){
@@ -58,15 +95,19 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return imageArray.count
+        return imageArray.count == 0 ? 1 : imageArray.count
     }
-
+    
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "imageCell", for: indexPath) as! ImageCell
-        cell.imageView.contentMode = .scaleAspectFit
-        cell.imageView.image = imageArray[indexPath.row]
-        cell.imageView.layer.cornerRadius = 20
-
+        
+        if imageArray.count == 0{
+            cell.pictureView.image = UIImage(systemName: "nosign")
+        }
+        else{
+            cell.pictureView.image = UIImage(data: imageArray[indexPath.row].picture!)
+        }
+        
         return cell
     }
     
@@ -84,24 +125,35 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
         let nextPage = round(currentPage)
         targetContentOffset.pointee.x = nextPage * (cellWidth + spacing + sectionInset)
     }
-
+    
 }
 extension ViewController: UICollectionViewDelegateFlowLayout{
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: collectionView.frame.height, height: collectionView.frame.height)
     }
-
+    
 }
 
 extension ViewController: ImagesViewControllerDelegate{
-    
-    func saveImage(_ image: UIImage) {
+    func saveImage(_ image: Image) {
         imageArray.append(image)
+        image.wasChosen = true
+        do{
+            try context.save()
+        }catch let error as NSError{
+            print(error.localizedDescription)
+        }
         collectionView.reloadData()
     }
-    func deleteImage(_ image: UIImage) {
+    func deleteImage(_ image: Image) {
         imageArray.remove(at: imageArray.firstIndex(of: image)!)
+        image.wasChosen = false
+        do{
+            try context.save()
+        }catch let error as NSError{
+            print(error.localizedDescription)
+        }
         collectionView.reloadData()
     }
 }

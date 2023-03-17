@@ -6,79 +6,101 @@
 //
 
 import UIKit
+import CoreData
 
 private let reuseIdentifier = "Cell"
 
-protocol ImagesViewControllerDelegate{
-    func saveImage(_ images: UIImage)
-    func deleteImage(_ image: UIImage)
+protocol ImagesViewControllerDelegate {
+    func saveImage(_ image: Image)
+    func deleteImage(_ image: Image)
 }
 
 class ImagesViewController: UICollectionViewController {
     
-    let color = UIColor(red: 66.0/255.0, green: 233/255.0, blue: 171/255.0, alpha: 1.0)
-    var imageArray: [UIImage] = []
+    // MARK: - Properties
+    
+    var chosenImages: [Image] = []
+    var allImages: [Image] = []
     var delegate: ImagesViewControllerDelegate!
-
+    var context: NSManagedObjectContext!
+    
+    // MARK: - Lifecycle
     
     override func viewDidLoad() {
-        //color setting
-        navigationController?.navigationBar.backgroundColor = .darkGray
-        collectionView.backgroundColor = .darkGray
-        
-        self.collectionView!.register(UICollectionViewCell.self, forCellWithReuseIdentifier: reuseIdentifier)
-        collectionView.register(ImageCell.self, forCellWithReuseIdentifier: "imageCell")
-
+        super.viewDidLoad()
+        configureNavigationBar()
+        configureCollectionView()
+        getImagesFromCoreData()
     }
-
+    
+    // MARK: - Private Functions
+    
+    private func configureNavigationBar() {
+        navigationController?.navigationBar.backgroundColor = .darkGray
+    }
+    
+    private func configureCollectionView() {
+        collectionView.backgroundColor = .darkGray
+        collectionView.register(ImageCell.self, forCellWithReuseIdentifier: "imageCell")
+    }
+    
+    private func getImagesFromCoreData() {
+        let fetchRequest = Image.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "picture != nil")
+        do {
+            for i in try context.fetch(fetchRequest) {
+                allImages.append(i)
+            }
+        } catch let error as NSError {
+            print(error.localizedDescription)
+        }
+    }
+    
+    // MARK: - UICollectionViewDataSource
+    
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
-        // #warning Incomplete implementation, return the number of sections
         return 1
     }
-
-
+    
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        // #warning Incomplete implementation, return the number of items
-        return imageArray.count
+        return allImages.count
     }
-
+    
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "imageCell", for: indexPath) as! ImageCell
         cell.backgroundColor = .darkGray
         cell.contentMode = .scaleAspectFit
         
-        let image = imageArray[indexPath.row]
-        cell.imageView.contentMode = .scaleToFill
-        cell.imageView.image = image
-        cell.imageView.layer.cornerRadius = 20
+        let AODImage = allImages[indexPath.row]
+        
+        cell.checkStatus.isHidden = chosenImages.contains(AODImage) ? false : true
+        
+        cell.pictureView.contentMode = .scaleToFill
+        cell.image = AODImage
+        cell.pictureView.image = UIImage(data: AODImage.picture!)
+        cell.pictureView.layer.cornerRadius = 20
         cell.checkStatus.image?.withTintColor(.darkGray)
-        if imageArray.contains(image){
-            cell.checkStatus.isHidden = false
-        }
-        else{
-            cell.checkStatus.isHidden = true
-        }
-    
+        
         return cell
     }
-
+    
+    // MARK: - UICollectionViewDelegate
+    
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let cell = collectionView.cellForItem(at: indexPath) as! ImageCell
-        if cell.checkStatus.isHidden{
-            cell.checkStatus.isHidden = false
-            delegate.saveImage(cell.imageView.image!)
+        if cell.checkStatus.isHidden {
+            delegate.saveImage(cell.image!)
+        } else {
+            delegate.deleteImage(cell.image!)
         }
-        else{
-            cell.checkStatus.isHidden = true
-            delegate.deleteImage(cell.imageView.image!)
-            imageArray.remove(at: imageArray.firstIndex(of: cell.imageView.image!) ?? 0)
-        }
-        
-        collectionView.reloadData()
+        cell.checkStatus.isHidden = !cell.checkStatus.isHidden
     }
-
 }
-extension ImagesViewController: UICollectionViewDelegateFlowLayout{
+
+// MARK: - UICollectionViewDelegateFlowLayout
+
+extension ImagesViewController: UICollectionViewDelegateFlowLayout {
+    
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: collectionView.frame.width / 4, height: collectionView.frame.width / 4)
     }

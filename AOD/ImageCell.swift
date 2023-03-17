@@ -9,18 +9,16 @@ import UIKit
 
 class ImageCell: UICollectionViewCell {
     
-    let imageView = UIImageView()
+    let pictureView = UIImageView()
     let checkStatus = UIImageView()
-
+    var image: Image?
     
     override init(frame: CGRect) {
         
         super.init(frame: frame)
         
         setupViews()
-        checkStatus.isHidden = true
-        
-        checkStatus.image = UIImage(systemName: "checkmark.circle.fill", withConfiguration: UIImage.SymbolConfiguration(paletteColors: [UIColor(red: 66.0/255.0, green: 233/255.0, blue: 171/255.0, alpha: 1.0)]))
+
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -29,17 +27,23 @@ class ImageCell: UICollectionViewCell {
 
     private func setupViews() {
         // Add the image view to the cell's content view and set its constraints
-        contentView.addSubview(imageView)
+        contentView.addSubview(pictureView)
         contentView.addSubview(checkStatus)
+        
+        pictureView.contentMode = .scaleToFill
+        pictureView.layer.cornerRadius = 20
+        
+        checkStatus.isHidden = true
+        checkStatus.image = UIImage(systemName: "checkmark.circle.fill", withConfiguration: UIImage.SymbolConfiguration(paletteColors: [UIColor(red: 66.0/255.0, green: 233/255.0, blue: 171/255.0, alpha: 1.0)]))
 
         
-        imageView.translatesAutoresizingMaskIntoConstraints = false
+        pictureView.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
-            imageView.topAnchor.constraint(equalTo: self.topAnchor),
-            imageView.bottomAnchor.constraint(equalTo: self.bottomAnchor),
-            imageView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-            imageView.trailingAnchor.constraint(equalTo: self.trailingAnchor)
+            pictureView.topAnchor.constraint(equalTo: self.topAnchor),
+            pictureView.bottomAnchor.constraint(equalTo: self.bottomAnchor),
+            pictureView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
+            pictureView.trailingAnchor.constraint(equalTo: self.trailingAnchor)
         ])
         
         checkStatus.translatesAutoresizingMaskIntoConstraints = false
