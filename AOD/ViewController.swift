@@ -23,29 +23,6 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
         destVC.chosenImages = imageArray
     }
     
-    private func firstStart(){
-        
-        let fetchRequest = Image.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "picture != nil")
-        do{
-            guard try context.fetch(fetchRequest).count == 0 else {return}
-        }catch let error as NSError{
-            print(error.localizedDescription)
-        }
-        
-        let systemImages: [String] = ["heart.square.fill", "tree", "globe.central.south.asia", "trash", "cloud.sun.bolt.circle"]
-        
-        for i in systemImages{
-            let image = Image(context: context)
-            let symbolConfiguration = UIImage.SymbolConfiguration(pointSize: collectionView.frame.height)
-            let systemImage = UIImage(systemName: i, withConfiguration: symbolConfiguration)?.withTintColor(.white)
-            image.picture = systemImage?.pngData()
-            image.wasChosen = true
-        }
-        
-        saveContext()
-    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         firstStart()
@@ -58,8 +35,11 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
         let fetchRequest = Image.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "wasChosen == %@", argumentArray: [true])
         do{
-            for i in try context.fetch(fetchRequest){
-                imageArray.append(i)
+            let request = try context.fetch(fetchRequest)
+            guard request.count > 0 else{return}
+            imageArray = [Image](repeating: request[0], count: request.count)
+            for i in 0..<request.count{
+                imageArray[Int(request[i].indexPathRow)] = request[i]
             }
         }catch let error as NSError{
             print(error.localizedDescription)
@@ -99,6 +79,7 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "imageCell", for: indexPath) as! ImageCell
         
         if imageArray.count == 0{
+            cell.pictureView.tintColor = .darkGray
             cell.pictureView.image = UIImage(systemName: "nosign")
         }
         else{
@@ -107,6 +88,7 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
         
         return cell
     }
+
     
     func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
         guard let flowLayout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout,
@@ -122,18 +104,8 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
         let nextPage = round(currentPage)
         targetContentOffset.pointee.x = nextPage * (cellWidth + spacing + sectionInset)
     }
-    
-    // Mark: - CoreData saver
-    
-    private func saveContext(){
-        do{
-            try context.save()
-        }catch let error as NSError{
-            print(error.localizedDescription)
-        }
-    }
-    
 }
+
 extension ViewController: UICollectionViewDelegateFlowLayout{
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
@@ -143,16 +115,44 @@ extension ViewController: UICollectionViewDelegateFlowLayout{
 }
 
 extension ViewController: ImagesViewControllerDelegate{
+    
     func saveImage(_ image: Image) {
         imageArray.append(image)
-        image.wasChosen = true
-        saveContext()
         collectionView.reloadData()
     }
+    
     func deleteImage(_ image: Image) {
         imageArray.remove(at: imageArray.firstIndex(of: image)!)
-        image.wasChosen = false
-        saveContext()
         collectionView.reloadData()
+    }
+}
+
+extension ViewController{
+    
+    private func firstStart(){
+        let fetchRequest = Image.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "picture != nil")
+        do{
+            guard try context.fetch(fetchRequest).count == 0 else {return}
+        }catch let error as NSError{
+            print(error.localizedDescription)
+        }
+        
+        let systemImages: [String] = ["heart.square.fill", "tree", "globe.central.south.asia", "trash", "cloud.sun.bolt.circle"]
+        
+        for i in 0..<systemImages.count{
+            let image = Image(context: context)
+            let symbolConfiguration = UIImage.SymbolConfiguration(pointSize: collectionView.frame.height)
+            let systemImage = UIImage(systemName: systemImages[i], withConfiguration: symbolConfiguration)?.withTintColor(.white)
+            image.picture = systemImage?.pngData()
+            image.wasChosen = true
+            image.indexPathRow = Int16(i)
+        }
+        
+        do{
+            try context.save()
+        }catch let error as NSError{
+            print(error.localizedDescription)
+        }
     }
 }

@@ -49,13 +49,15 @@ class ImagesViewController: UICollectionViewController {
     }
     
     private func getImagesFromCoreData() {
-        let fetchRequest = Image.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "picture != nil")
+        let fetchRequestAll = Image.fetchRequest()
+        fetchRequestAll.predicate = NSPredicate(format: "picture != nil")
         do {
-            for i in try context.fetch(fetchRequest) {
-                allImages.append(i)
+            let requestAll = try context.fetch(fetchRequestAll)
+            allImages = [Image](repeating: requestAll[0], count: requestAll.count)
+            for i in 0 ..< requestAll.count {
+                allImages[Int(requestAll[i].indexPathRow)] = requestAll[i]
             }
-        } catch let error as NSError {
+        }catch let error as NSError {
             print(error.localizedDescription)
         }
     }
@@ -74,12 +76,10 @@ class ImagesViewController: UICollectionViewController {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "imageCell", for: indexPath) as! ImageCell
         cell.backgroundColor = .darkGray
         cell.contentMode = .scaleAspectFit
-        
         let AODImage = allImages[indexPath.row]
         
         cell.checkStatus.isHidden = chosenImages.contains(AODImage) ? false : true
         
-        cell.pictureView.contentMode = .scaleToFill
         cell.image = AODImage
         cell.pictureView.image = UIImage(data: AODImage.picture!)
         cell.pictureView.layer.cornerRadius = 20
@@ -92,12 +92,45 @@ class ImagesViewController: UICollectionViewController {
     
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let cell = collectionView.cellForItem(at: indexPath) as! ImageCell
+        guard let image = cell.image else {return}
+        
         if cell.checkStatus.isHidden {
-            delegate.saveImage(cell.image!)
-        } else {
-            delegate.deleteImage(cell.image!)
+            chosenImages.append(image)
+            collectionView.moveItem(at: indexPath, to: [indexPath.startIndex, chosenImages.count - 1])
+            allImages.remove(at: indexPath.row)
+            allImages.insert(image, at: chosenImages.count - 1)
+            image.wasChosen = true
+            image.indexPathRow = Int16(chosenImages.count - 1)
+            for i in (chosenImages.count - 1) ..< allImages.count{
+                allImages[i].indexPathRow = Int16(i)
+            }
+            saveContext()
+            delegate.saveImage(image)
+        }
+        else{
+            chosenImages.remove(at: indexPath.row)
+            collectionView.moveItem(at: indexPath, to: [indexPath.startIndex, chosenImages.count])
+            allImages.remove(at: indexPath.row)
+            allImages.insert(image, at: chosenImages.count)
+            image.wasChosen = false
+            image.indexPathRow = Int16(chosenImages.count)
+            for i in indexPath.row..<allImages.count{
+                allImages[i].indexPathRow = Int16(i)
+            }
+            saveContext()
+            delegate.deleteImage(image)
         }
         cell.checkStatus.isHidden = !cell.checkStatus.isHidden
+    }
+    
+    // Mark: - CoreData saver
+    
+    private func saveContext(){
+        do{
+            try context.save()
+        }catch let error as NSError{
+            print(error.localizedDescription)
+        }
     }
 }
 
