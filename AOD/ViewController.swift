@@ -37,6 +37,7 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
         do{
             let request = try context.fetch(fetchRequest)
             guard request.count > 0 else{return}
+            print(request.count)
             imageArray = [Image](repeating: request[0], count: request.count)
             for i in 0..<request.count{
                 imageArray[Int(request[i].indexPathRow)] = request[i]
@@ -67,6 +68,7 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
             }
         }
     }
+    
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
         return UIEdgeInsets(top: 0, left: collectionView.frame.width / 4, bottom: 0, right: collectionView.frame.width / 4)
     }
@@ -122,7 +124,8 @@ extension ViewController: ImagesViewControllerDelegate{
     }
     
     func deleteImage(_ image: Image) {
-        imageArray.remove(at: imageArray.firstIndex(of: image)!)
+        guard let imageIndex = imageArray.firstIndex(of: image) else {return}
+        imageArray.remove(at: imageIndex)
         collectionView.reloadData()
     }
 }
@@ -139,6 +142,7 @@ extension ViewController{
         }
         
         let systemImages: [String] = ["heart.square.fill", "tree", "globe.central.south.asia", "trash", "cloud.sun.bolt.circle"]
+        //, "heart.square.fill", "tree", "globe.central.south.asia", "trash", "cloud.sun.bolt.circle", "heart.square.fill", "tree", "globe.central.south.asia", "trash", "cloud.sun.bolt.circle", "heart.square.fill", "tree", "globe.central.south.asia", "trash", "cloud.sun.bolt.circle", "heart.square.fill", "tree", "globe.central.south.asia", "trash", "cloud.sun.bolt.circle", "heart.square.fill", "tree", "globe.central.south.asia", "trash", "cloud.sun.bolt.circle", "heart.square.fill", "tree", "globe.central.south.asia", "trash", "cloud.sun.bolt.circle", "heart.square.fill", "tree", "globe.central.south.asia", "trash", "cloud.sun.bolt.circle", "heart.square.fill", "tree", "globe.central.south.asia", "trash", "cloud.sun.bolt.circle", "heart.square.fill", "tree", "globe.central.south.asia", "trash", "cloud.sun.bolt.circle", "heart.square.fill", "tree", "globe.central.south.asia", "trash", "cloud.sun.bolt.circle"]
         
         for i in 0..<systemImages.count{
             let image = Image(context: context)

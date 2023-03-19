@@ -23,6 +23,8 @@ class ImagesViewController: UICollectionViewController {
     var allImages: [Image] = []
     var delegate: ImagesViewControllerDelegate!
     var context: NSManagedObjectContext!
+    var isDeleting = false
+    
     
     // MARK: - Lifecycle
     
@@ -33,6 +35,10 @@ class ImagesViewController: UICollectionViewController {
         getImagesFromCoreData()
     }
     
+    deinit{
+        print("was deinited")
+    }
+    
     override func viewDidDisappear(_ animated: Bool) {
         dismiss(animated: false)
     }
@@ -41,15 +47,33 @@ class ImagesViewController: UICollectionViewController {
     
     private func configureNavigationBar() {
         navigationController?.navigationBar.backgroundColor = .darkGray
+        navigationController?.navigationBar.barTintColor = .darkGray
+        let cancelButton: UIBarButtonItem = UIBarButtonItem(title: "Отмена", style: .done, target: self, action: #selector(cancelButtonTapped))
+        let okButton: UIBarButtonItem = UIBarButtonItem(title: "Готово", style: .done, target: self, action: #selector(okButtonTapped))
+        navigationItem.leftBarButtonItem = cancelButton
+        navigationItem.rightBarButtonItem = okButton
+        navigationItem.leftBarButtonItem?.isHidden = true
+        navigationItem.rightBarButtonItem?.isHidden = true
+        
     }
     
     private func configureCollectionView() {
         collectionView.backgroundColor = .darkGray
         collectionView.register(ImageCell.self, forCellWithReuseIdentifier: "imageCell")
+        let longPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
+        longPressGesture.minimumPressDuration = 1
+        collectionView.addGestureRecognizer(longPressGesture)
+        collectionView.allowsMultipleSelection = true
     }
     
     private func getImagesFromCoreData() {
         let fetchRequestAll = Image.fetchRequest()
+        fetchRequestAll.predicate = NSPredicate(format: "picture != nil")
+        do{
+            guard try context.fetch(fetchRequestAll).count > 0 else {return}
+        }catch let error as NSError{
+            print(error.localizedDescription)
+        }
         fetchRequestAll.predicate = NSPredicate(format: "picture != nil")
         do {
             let requestAll = try context.fetch(fetchRequestAll)
@@ -77,23 +101,37 @@ class ImagesViewController: UICollectionViewController {
         cell.backgroundColor = .darkGray
         cell.contentMode = .scaleAspectFit
         let AODImage = allImages[indexPath.row]
-        
-        cell.checkStatus.isHidden = chosenImages.contains(AODImage) ? false : true
-        
         cell.image = AODImage
-        cell.pictureView.image = UIImage(data: AODImage.picture!)
+        cell.isDeleting = self.isDeleting
+        if let picture = AODImage.picture{
+            cell.pictureView.image = UIImage(data: picture)
+        }
         cell.pictureView.layer.cornerRadius = 20
-        cell.checkStatus.image?.withTintColor(.darkGray)
-        
+
         return cell
     }
     
     // MARK: - UICollectionViewDelegate
     
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let cell = collectionView.cellForItem(at: indexPath) as! ImageCell
+        if !isDeleting{
+            choseElementToDisplay(indexPath: indexPath)
+        }
+        else{
+            choseElementToDelete(indexPath: indexPath)
+        }
+
+    }
+    
+    private func choseElementToDelete(indexPath: IndexPath){
+        guard let cell = collectionView.cellForItem(at: indexPath) as? ImageCell else {return}
+        cell.isSelected = true
+    }
+    
+    
+    private func choseElementToDisplay(indexPath: IndexPath){
+        guard let cell = collectionView.cellForItem(at: indexPath) as? ImageCell else{return}
         guard let image = cell.image else {return}
-        
         if cell.checkStatus.isHidden {
             chosenImages.append(image)
             collectionView.moveItem(at: indexPath, to: [indexPath.startIndex, chosenImages.count - 1])
@@ -104,7 +142,6 @@ class ImagesViewController: UICollectionViewController {
             for i in (chosenImages.count - 1) ..< allImages.count{
                 allImages[i].indexPathRow = Int16(i)
             }
-            saveContext()
             delegate.saveImage(image)
         }
         else{
@@ -117,10 +154,68 @@ class ImagesViewController: UICollectionViewController {
             for i in indexPath.row..<allImages.count{
                 allImages[i].indexPathRow = Int16(i)
             }
-            saveContext()
             delegate.deleteImage(image)
         }
+        saveContext()
         cell.checkStatus.isHidden = !cell.checkStatus.isHidden
+    }
+    
+    @objc func handleLongPress(_ gestureRecognizer: UILongPressGestureRecognizer) {
+        if gestureRecognizer.state == .began {
+            let point = gestureRecognizer.location(in: collectionView)
+            if collectionView.indexPathForItem(at: point) != nil {
+                navigationItem.leftBarButtonItem?.isHidden = false
+                navigationItem.rightBarButtonItem?.isHidden = false
+                isDeleting = true
+                collectionView.reloadData()
+            }
+        }
+    }
+    
+    @objc func cancelButtonTapped() {
+        guard let selectedItemsIndexes = collectionView.indexPathsForSelectedItems else {return}
+        let animation = UIViewPropertyAnimator(duration: 0.1, curve: .linear)
+        for i in selectedItemsIndexes{
+            guard let cell = collectionView.cellForItem(at: i) as? ImageCell else{return}
+            cell.deleteStatus.alpha = 1.0
+            animation.addAnimations {
+                cell.deleteStatus.alpha = 0.0
+            }
+
+        }
+        animation.addCompletion({_ in
+            self.isDeleting = false
+            self.collectionView.reloadData()
+        })
+        animation.startAnimation()
+        navigationItem.leftBarButtonItem?.isHidden = true
+        navigationItem.rightBarButtonItem?.isHidden = true
+    }
+    
+    @objc func okButtonTapped(){
+        guard let selectedItemsIndexes = collectionView.indexPathsForSelectedItems else {return}
+        collectionView.performBatchUpdates({
+            for i in selectedItemsIndexes.reversed(){
+                guard let cell = collectionView.cellForItem(at: i) as? ImageCell else{return}
+                guard let image = cell.image else {return}
+                allImages.remove(at: allImages.firstIndex(of: image)!)
+                if let chosenIndex = chosenImages.firstIndex(of: image){
+                    chosenImages.remove(at: chosenIndex)
+                }
+                delegate.deleteImage(image)
+                context.delete(image)}
+            collectionView.deleteItems(at: selectedItemsIndexes)
+        }, completion: { _ in
+            for i in 0..<self.allImages.count{
+                self.allImages[i].indexPathRow = Int16(i)
+            }
+            self.isDeleting = false
+            self.collectionView.reloadData()
+            self.saveContext()
+        })
+        navigationItem.leftBarButtonItem?.isHidden = true
+        navigationItem.rightBarButtonItem?.isHidden = true
+
     }
     
     // Mark: - CoreData saver
