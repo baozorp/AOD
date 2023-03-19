@@ -190,9 +190,15 @@ class ImagesViewController: UICollectionViewController {
         animation.startAnimation()
         navigationItem.leftBarButtonItem?.isHidden = true
         navigationItem.rightBarButtonItem?.isHidden = true
+        if let count = collectionView.indexPathsForSelectedItems?.count{
+            self.isDeleting = false
+            count == 0 ? collectionView.reloadData() : nil
+        }
+
     }
     
     @objc func okButtonTapped(){
+        
         guard let selectedItemsIndexes = collectionView.indexPathsForSelectedItems else {return}
         collectionView.performBatchUpdates({
             for i in selectedItemsIndexes.reversed(){
@@ -210,8 +216,8 @@ class ImagesViewController: UICollectionViewController {
                 self.allImages[i].indexPathRow = Int16(i)
             }
             self.isDeleting = false
-            self.collectionView.reloadData()
             self.saveContext()
+            self.collectionView.reloadData()
         })
         navigationItem.leftBarButtonItem?.isHidden = true
         navigationItem.rightBarButtonItem?.isHidden = true

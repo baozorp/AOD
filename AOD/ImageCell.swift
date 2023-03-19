@@ -97,9 +97,6 @@ class ImageCell: UICollectionViewCell {
         secondAnimation.fromValue = -CGFloat.pi / 150
         secondAnimation.toValue = CGFloat.pi / 150
         
-        // Delete button animation
-
-//        deleteAnimation.duration = 1 // длительность анимации в секундах
 
     }
     
