@@ -51,6 +51,8 @@ class ImagesViewController: UICollectionViewController {
     // MARK: - Private Functions
     
     private func configureNavigationBar() {
+        
+        self.title = "Выберите изображения"
         navigationController?.navigationBar.backgroundColor = .darkGray
         navigationController?.navigationBar.barTintColor = .darkGray
         

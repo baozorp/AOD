@@ -9,19 +9,12 @@ import UIKit
 import CoreData
 
 class ViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate{
-    
-    @IBOutlet weak var collectionView: UICollectionView!
-    
+        
     var imageArray: [Image] = []
-    var context: NSManagedObjectContext!
+    var context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+    var collectionView: UICollectionView!
     
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        guard let destNC = segue.destination as? UINavigationController else {return}
-        guard let destVC = destNC.viewControllers.first as? ImagesViewController else {return}
-        destVC.delegate = self
-        destVC.context = context
-        destVC.chosenImages = imageArray
-    }
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -48,8 +41,12 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
     }
     
     private func settingOfCollectionView(){
+        let collectionViewFrame = CGRect(x: 0, y: self.view.frame.midY - self.view.frame.width/4, width: self.view.frame.width, height: self.view.frame.width/2)
+        collectionView = UICollectionView(frame: collectionViewFrame, collectionViewLayout: UICollectionViewFlowLayout())
+        self.view.addSubview(collectionView)
         guard let flowLayout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout else {return}
         flowLayout.minimumLineSpacing = collectionView.frame.width / 4
+        flowLayout.scrollDirection = .horizontal
         collectionView.dataSource = self
         collectionView.delegate = self
         collectionView.backgroundColor = .black
@@ -64,7 +61,14 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
         if gestureRecognizer.state == .began {
             let point = gestureRecognizer.location(in: collectionView)
             if collectionView.indexPathForItem(at: point) != nil {
-                performSegue(withIdentifier: "identer", sender: nil)
+                let imagesNC = UINavigationController()
+                let layout = UICollectionViewFlowLayout()
+                let imagesVC = ImagesViewController(collectionViewLayout: layout)
+                imagesNC.pushViewController(imagesVC, animated: true)
+                imagesVC.delegate = self
+                imagesVC.context = context
+                imagesVC.chosenImages = imageArray
+                present(imagesNC, animated: true)
             }
         }
     }
