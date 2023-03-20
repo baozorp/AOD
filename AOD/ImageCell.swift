@@ -17,7 +17,6 @@ class ImageCell: UICollectionViewCell {
     private var secondAnimation = CABasicAnimation(keyPath: "transform.rotation")
 //    private var deleteAnimation = CABasicAnimation(keyPath: "opacity")
     var deleteAppearenceAnimation = UIViewPropertyAnimator()
-    var isShowinOnDisplay = false
     var isDeleting = false{
         didSet{
             if isDeleting{
