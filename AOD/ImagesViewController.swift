@@ -23,7 +23,12 @@ class ImagesViewController: UICollectionViewController {
     var allImages: [Image] = []
     var delegate: ImagesViewControllerDelegate!
     var context: NSManagedObjectContext!
-    var isDeleting = false
+    var wasDeleting = true
+    var isDeleting = false{
+        willSet{
+            wasDeleting = isDeleting
+        }
+    }
     
     
     // MARK: - Lifecycle
@@ -119,11 +124,13 @@ class ImagesViewController: UICollectionViewController {
         cell.contentMode = .scaleAspectFit
         let AODImage = allImages[indexPath.row]
         cell.image = AODImage
-        cell.isDeleting = self.isDeleting
+
         if let picture = AODImage.picture{
             cell.pictureView.image = UIImage(data: picture)
         }
-        cell.pictureView.layer.cornerRadius = 20
+
+
+        cell.checkStatus.isHidden = cell.image!.wasChosen ? false : true
         
         return cell
     }
@@ -236,34 +243,46 @@ extension ImagesViewController{
     private func choseElementToDisplay(indexPath: IndexPath){
         guard let cell = self.collectionView.cellForItem(at: indexPath) as? ImageCell else { return }
         guard let image = cell.image else { return }
-        
-        if cell.checkStatus.isHidden {
-            self.chosenImages.append(image)
-            self.collectionView.moveItem(at: indexPath, to: [indexPath.startIndex, self.chosenImages.count - 1])
-            self.allImages.remove(at: indexPath.row)
-            self.allImages.insert(image, at: self.chosenImages.count - 1)
-            image.wasChosen = true
-            image.indexPathRow = Int16(self.chosenImages.count - 1)
-            for i in (self.chosenImages.count - 1) ..< self.allImages.count {
-                self.allImages[i].indexPathRow = Int16(i)
-            }
-            self.delegate.saveImage(image)
-        } else {
-            self.chosenImages.remove(at: indexPath.row)
-            self.collectionView.moveItem(at: indexPath, to: [indexPath.startIndex, self.chosenImages.count])
-            self.allImages.remove(at: indexPath.row)
+        cell.isSelected = false
+        if image.wasChosen{
+            image.wasChosen = !image.wasChosen
+            self.saveContext()
+            self.delegate.deleteImage(image)
+            self.chosenImages.remove(at: chosenImages.firstIndex(of: image)!)
+            
+            self.allImages.remove(at: allImages.firstIndex(of: image)!)
             self.allImages.insert(image, at: self.chosenImages.count)
-            image.wasChosen = false
-            image.indexPathRow = Int16(self.chosenImages.count)
+            
             for i in indexPath.row ..< self.allImages.count {
                 self.allImages[i].indexPathRow = Int16(i)
             }
-            self.delegate.deleteImage(image)
+            collectionView.performBatchUpdates({
+                self.collectionView.reloadData()
+                self.collectionView.moveItem(at: indexPath, to: [indexPath.startIndex, self.chosenImages.count])
+                self.saveContext()
+                cell.animateChecker()
+                
+            })
         }
-        cell.isSelected = false
-        cell.checkStatus.isHidden = !cell.checkStatus.isHidden
-        collectionView.reloadData()
-        self.saveContext()
+        
+        else{
+            image.wasChosen = !image.wasChosen
+            self.delegate.saveImage(image)
+            self.chosenImages.append(image)
+            image.indexPathRow = Int16(self.chosenImages.count - 1)
+            self.saveContext()
+            self.allImages.remove(at: indexPath.row)
+            self.allImages.insert(image, at: self.chosenImages.count - 1)
+            for i in (self.chosenImages.count - 1) ..< self.allImages.count {
+                self.allImages[i].indexPathRow = Int16(i)
+            }
+            collectionView.performBatchUpdates({
+                self.collectionView.reloadData()
+                self.collectionView.moveItem(at: indexPath, to: [indexPath.startIndex, self.chosenImages.count-1])
+                self.saveContext()
+                cell.animateChecker()
+            })
+        }
     }
     
     private func reverseVisibleNavButtons(){

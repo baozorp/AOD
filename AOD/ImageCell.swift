@@ -17,17 +17,7 @@ class ImageCell: UICollectionViewCell {
     private var secondAnimation = CABasicAnimation(keyPath: "transform.rotation")
 //    private var deleteAnimation = CABasicAnimation(keyPath: "opacity")
     var deleteAppearenceAnimation = UIViewPropertyAnimator()
-    var isDeleting = false{
-        didSet{
-            if isDeleting{
-                checkStatus.isHidden = true
-            }
-            else{
-                guard let image = image else {return}
-                checkStatus.isHidden = image.wasChosen ? false : true
-            }
-        }
-    }
+    var isDeleting = false
     
     override var isSelected: Bool{
         didSet{
@@ -44,13 +34,35 @@ class ImageCell: UICollectionViewCell {
                     deleteAppearenceAnimation = UIViewPropertyAnimator(duration: 0.1, curve: .linear){
                         self.deleteStatus.alpha = 0.0
                     }
-                    
                     deleteAppearenceAnimation.startAnimation()
                 }
-                
             }
         }
     }
+    
+    func animateChecker(using completionHandler: ( () -> (Void))? = nil){
+        guard let image = image else {return}
+        let checkAppearenceAnimation = UIViewPropertyAnimator(duration: 0.1, curve: .linear)
+        if image.wasChosen{
+            self.checkStatus.isHidden = false
+            self.checkStatus.transform = CGAffineTransform(scaleX: 0.01, y: 0.01)
+            checkAppearenceAnimation.addAnimations {
+                self.checkStatus.transform = CGAffineTransform(scaleX: 1.0, y: 1.0)
+            }
+        }
+        else{
+            self.checkStatus.transform = CGAffineTransform(scaleX: 1.0, y: 1.0)
+            checkAppearenceAnimation.addAnimations {
+                self.checkStatus.transform = CGAffineTransform(scaleX: 0.01, y: 0.01)
+            }
+        }
+        checkAppearenceAnimation.addCompletion({_ in
+            self.checkStatus.isHidden = image.wasChosen ? false : true
+            completionHandler?()
+        })
+        checkAppearenceAnimation.startAnimation()
+    }
+    
     
     
     override init(frame: CGRect) {
@@ -95,7 +107,7 @@ class ImageCell: UICollectionViewCell {
         secondAnimation.autoreverses = true
         secondAnimation.fromValue = -CGFloat.pi / 150
         secondAnimation.toValue = CGFloat.pi / 150
-        
+
 
     }
     
@@ -111,7 +123,7 @@ class ImageCell: UICollectionViewCell {
         let deleteColor = UIColor(red: 255/255.0, green: 40/255.0, blue: 38/255.0, alpha: 1.0)
         let deleteConfiguration = UIImage.SymbolConfiguration(paletteColors: [deleteColor])
         deleteStatus.image = UIImage(systemName: "trash.fill", withConfiguration: deleteConfiguration)
-        deleteStatus.isHidden = false
+        deleteStatus.isHidden = true
         deleteStatus.alpha = 0.0
     }
     
