@@ -129,9 +129,11 @@ class ImagesViewController: UICollectionViewController {
             cell.pictureView.image = UIImage(data: picture)
         }
 
-
-        cell.checkStatus.isHidden = cell.image!.wasChosen ? false : true
+        cell.isDeleting = isDeleting
+        cell.animateChecker()
         
+
+
         return cell
     }
     
@@ -148,11 +150,11 @@ class ImagesViewController: UICollectionViewController {
     }
     
     @objc func handleLongPress(_ gestureRecognizer: UILongPressGestureRecognizer) {
-        guard !isDeleting else {return}
+//        guard !isDeleting else {return}
         if gestureRecognizer.state == .began {
             let point = gestureRecognizer.location(in: collectionView)
             if collectionView.indexPathForItem(at: point) != nil {
-                isDeleting = true
+                isDeleting = !isDeleting
                 reverseVisibleNavButtons()
                 collectionView.reloadData()
             }
@@ -261,7 +263,7 @@ extension ImagesViewController{
                 self.collectionView.moveItem(at: indexPath, to: [indexPath.startIndex, self.chosenImages.count])
                 self.saveContext()
                 cell.animateChecker()
-                
+    
             })
         }
         

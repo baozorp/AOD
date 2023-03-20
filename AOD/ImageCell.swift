@@ -15,7 +15,6 @@ class ImageCell: UICollectionViewCell {
     var image: Image?
     private var firstAnimation = CABasicAnimation(keyPath: "position")
     private var secondAnimation = CABasicAnimation(keyPath: "transform.rotation")
-//    private var deleteAnimation = CABasicAnimation(keyPath: "opacity")
     var deleteAppearenceAnimation = UIViewPropertyAnimator()
     var isDeleting = false
     
@@ -24,14 +23,14 @@ class ImageCell: UICollectionViewCell {
             if isDeleting{
                 if isSelected{
                     deleteStatus.alpha = 0.0
-                    deleteAppearenceAnimation = UIViewPropertyAnimator(duration: 0.1, curve: .linear){
+                    deleteAppearenceAnimation = UIViewPropertyAnimator(duration: 0.15, curve: .linear){
                         self.deleteStatus.alpha = 1.0
                     }
                     deleteAppearenceAnimation.startAnimation()
                 }
                 else{
                     deleteStatus.alpha = 1.0
-                    deleteAppearenceAnimation = UIViewPropertyAnimator(duration: 0.1, curve: .linear){
+                    deleteAppearenceAnimation = UIViewPropertyAnimator(duration: 0.15, curve: .linear){
                         self.deleteStatus.alpha = 0.0
                     }
                     deleteAppearenceAnimation.startAnimation()
@@ -40,26 +39,33 @@ class ImageCell: UICollectionViewCell {
         }
     }
     
-    func animateChecker(using completionHandler: ( () -> (Void))? = nil){
+    
+    func animateChecker(){
         guard let image = image else {return}
         let checkAppearenceAnimation = UIViewPropertyAnimator(duration: 0.1, curve: .linear)
-        if image.wasChosen{
-            self.checkStatus.isHidden = false
-            self.checkStatus.transform = CGAffineTransform(scaleX: 0.01, y: 0.01)
-            checkAppearenceAnimation.addAnimations {
-                self.checkStatus.transform = CGAffineTransform(scaleX: 1.0, y: 1.0)
-            }
-        }
-        else{
+        if self.isDeleting && image.wasChosen{
             self.checkStatus.transform = CGAffineTransform(scaleX: 1.0, y: 1.0)
             checkAppearenceAnimation.addAnimations {
                 self.checkStatus.transform = CGAffineTransform(scaleX: 0.01, y: 0.01)
             }
         }
-        checkAppearenceAnimation.addCompletion({_ in
-            self.checkStatus.isHidden = image.wasChosen ? false : true
-            completionHandler?()
-        })
+        else if self.isDeleting && !image.wasChosen{
+            self.checkStatus.transform = CGAffineTransform(scaleX: 0.01, y: 0.01)
+        }
+        else if image.wasChosen{
+            guard self.checkStatus.transform != CGAffineTransform(scaleX: 1.0, y: 1.0) else {return}
+            self.checkStatus.transform = CGAffineTransform(scaleX: 0.01, y: 0.01)
+            checkAppearenceAnimation.addAnimations {
+                self.checkStatus.transform = CGAffineTransform(scaleX: 1.0, y: 1.0)
+            }
+        }
+        else if !image.wasChosen{
+            guard self.checkStatus.transform != CGAffineTransform(scaleX: 0.01, y: 0.01) else {return}
+            self.checkStatus.transform = CGAffineTransform(scaleX: 1.0, y: 1.0)
+            checkAppearenceAnimation.addAnimations {
+                self.checkStatus.transform = CGAffineTransform(scaleX: 0.01, y: 0.01)
+            }
+        }
         checkAppearenceAnimation.startAnimation()
     }
     
@@ -117,13 +123,12 @@ class ImageCell: UICollectionViewCell {
         let checkColor = UIColor(red: 66/255.0, green: 233/255.0, blue: 171/255.0, alpha: 1.0)
         let checkConfiguration = UIImage.SymbolConfiguration(paletteColors: [checkColor])
         checkStatus.image = UIImage(systemName: "checkmark.circle.fill", withConfiguration: checkConfiguration)
-        checkStatus.isHidden = true
+        checkStatus.transform = CGAffineTransform(scaleX: 0.01, y: 0.01)
         
         // DeleteStatus settings
         let deleteColor = UIColor(red: 255/255.0, green: 40/255.0, blue: 38/255.0, alpha: 1.0)
         let deleteConfiguration = UIImage.SymbolConfiguration(paletteColors: [deleteColor])
         deleteStatus.image = UIImage(systemName: "trash.fill", withConfiguration: deleteConfiguration)
-        deleteStatus.isHidden = true
         deleteStatus.alpha = 0.0
     }
     
