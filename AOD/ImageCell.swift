@@ -39,6 +39,20 @@ class ImageCell: UICollectionViewCell {
         }
     }
     
+    func animateDeleter(_ completion: (()->Void)? = nil){
+        guard isDeleting, isSelected else {return}
+        let animation = UIViewPropertyAnimator(duration: 0.1, curve: .linear)
+        self.deleteStatus.alpha = 1.0
+        animation.addAnimations {
+            self.deleteStatus.alpha = 0.0
+        }
+        animation.addCompletion({_ in
+            completion?()
+        })
+        animation.startAnimation()
+
+    }
+    
     
     func animateChecker(){
         guard let image = image else {return}

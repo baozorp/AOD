@@ -8,54 +8,49 @@
 import UIKit
 import CoreData
 
-class ViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate{
+class ViewController: UIViewController{
         
-    var imageArray: [Image] = []
-    var context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
-    var collectionView: UICollectionView!
+    private var imageArray: [Image] = []
+    private var context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
+    private var collectionView: UICollectionView!
+    private var longPressGesture: UILongPressGestureRecognizer!
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        firstStart()
+        setupUI()
+        firstStartChecker()
+        loadImagesFromCoreData()
+    }
+    
+    private func setupUI() {
         view.backgroundColor = .black
-        settingOfCollectionView()
-        getImagesFromCoreData()
+        setupCollectionView()
+        setupLongPressGesture()
     }
     
-    private func getImagesFromCoreData(){
-        let fetchRequest = Image.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "wasChosen == %@", argumentArray: [true])
-        do{
-            let request = try context.fetch(fetchRequest)
-            guard request.count > 0 else{return}
-            print(request.count)
-            imageArray = [Image](repeating: request[0], count: request.count)
-            for i in 0..<request.count{
-                imageArray[Int(request[i].indexPathRow)] = request[i]
-            }
-        }catch let error as NSError{
-            print(error.localizedDescription)
-        }
-    }
-    
-    private func settingOfCollectionView(){
+    private func setupCollectionView(){
         let collectionViewFrame = CGRect(x: 0, y: self.view.frame.midY - self.view.frame.width/4, width: self.view.frame.width, height: self.view.frame.width/2)
         collectionView = UICollectionView(frame: collectionViewFrame, collectionViewLayout: UICollectionViewFlowLayout())
         self.view.addSubview(collectionView)
-        guard let flowLayout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout else {return}
-        flowLayout.minimumLineSpacing = collectionView.frame.width / 4
-        flowLayout.scrollDirection = .horizontal
         collectionView.dataSource = self
         collectionView.delegate = self
         collectionView.backgroundColor = .black
         collectionView.showsHorizontalScrollIndicator = false
         collectionView.register(ImageCell.self, forCellWithReuseIdentifier: "imageCell")
-        let longPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
+        guard let flowLayout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout else {return}
+        flowLayout.minimumLineSpacing = collectionView.frame.width / 4
+        flowLayout.scrollDirection = .horizontal
+    }
+    
+    private func setupLongPressGesture(){
+        longPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
         longPressGesture.minimumPressDuration = 1
         collectionView.addGestureRecognizer(longPressGesture)
     }
+    
+    // MARK: - Long Press Gesture Handling
     
     @objc func handleLongPress(_ gestureRecognizer: UILongPressGestureRecognizer) {
         if gestureRecognizer.state == .began {
@@ -73,15 +68,31 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
         }
     }
     
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
-        return UIEdgeInsets(top: 0, left: collectionView.frame.width / 4, bottom: 0, right: collectionView.frame.width / 4)
-    }
+    // Mark - Data loading
     
+    private func loadImagesFromCoreData() {
+        let fetchRequest = Image.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "wasChosen == %@", argumentArray: [true])
+        do {
+            let fetchedImages = try context.fetch(fetchRequest)
+            if !fetchedImages.isEmpty {
+                imageArray = fetchedImages.sorted { $0.indexPathRow < $1.indexPathRow }
+            }
+        } catch let error as NSError {
+            print(error.localizedDescription)
+        }
+    }
+}
+
+// MARK: - UICollectionViewDataSource
+
+extension ViewController: UICollectionViewDataSource{
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return imageArray.count == 0 ? 1 : imageArray.count
+        return imageArray.isEmpty ? 1 : imageArray.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "imageCell", for: indexPath) as! ImageCell
         
         if imageArray.count == 0{
@@ -93,6 +104,14 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
         }
         
         return cell
+    }
+}
+
+// MARK: - UICollectionViewDelegate
+
+extension ViewController: UICollectionViewDelegate{
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+        return UIEdgeInsets(top: 0, left: collectionView.frame.width / 4, bottom: 0, right: collectionView.frame.width / 4)
     }
 
     
@@ -120,14 +139,16 @@ extension ViewController: UICollectionViewDelegateFlowLayout{
     
 }
 
+// Mark - Delegate for ImagesViewController which reload Data
+
 extension ViewController: ImagesViewControllerDelegate{
     
-    func saveImage(_ image: Image) {
+    func wasChosenImage(_ image: Image) {
         imageArray.append(image)
         collectionView.reloadData()
     }
     
-    func deleteImage(_ image: Image) {
+    func wasNotChosenImage(_ image: Image) {
         guard let imageIndex = imageArray.firstIndex(of: image) else {return}
         imageArray.remove(at: imageIndex)
         collectionView.reloadData()
@@ -136,7 +157,7 @@ extension ViewController: ImagesViewControllerDelegate{
 
 extension ViewController{
     
-    private func firstStart(){
+    private func firstStartChecker(){
         let fetchRequest = Image.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "picture != nil")
         do{
@@ -145,8 +166,7 @@ extension ViewController{
             print(error.localizedDescription)
         }
         
-        let systemImages: [String] = ["heart.square.fill", "tree", "globe.central.south.asia", "trash", "cloud.sun.bolt.circle"]
-        //, "heart.square.fill", "tree", "globe.central.south.asia", "trash", "cloud.sun.bolt.circle", "heart.square.fill", "tree", "globe.central.south.asia", "trash", "cloud.sun.bolt.circle", "heart.square.fill", "tree", "globe.central.south.asia", "trash", "cloud.sun.bolt.circle", "heart.square.fill", "tree", "globe.central.south.asia", "trash", "cloud.sun.bolt.circle", "heart.square.fill", "tree", "globe.central.south.asia", "trash", "cloud.sun.bolt.circle", "heart.square.fill", "tree", "globe.central.south.asia", "trash", "cloud.sun.bolt.circle", "heart.square.fill", "tree", "globe.central.south.asia", "trash", "cloud.sun.bolt.circle", "heart.square.fill", "tree", "globe.central.south.asia", "trash", "cloud.sun.bolt.circle", "heart.square.fill", "tree", "globe.central.south.asia", "trash", "cloud.sun.bolt.circle", "heart.square.fill", "tree", "globe.central.south.asia", "trash", "cloud.sun.bolt.circle"]
+        let systemImages: [String] = ["heart.square.fill", "tree", "globe.central.south.asia", "trash", "cloud.sun.bolt.circle", "heart.square.fill", "tree", "globe.central.south.asia", "trash", "cloud.sun.bolt.circle", "heart.square.fill", "tree", "globe.central.south.asia", "trash", "cloud.sun.bolt.circle", "heart.square.fill", "tree", "globe.central.south.asia", "trash", "cloud.sun.bolt.circle", "heart.square.fill", "tree", "globe.central.south.asia", "trash", "cloud.sun.bolt.circle", "heart.square.fill", "tree", "globe.central.south.asia", "trash", "cloud.sun.bolt.circle", "heart.square.fill", "tree", "globe.central.south.asia", "trash", "cloud.sun.bolt.circle", "heart.square.fill", "tree", "globe.central.south.asia", "trash", "cloud.sun.bolt.circle", "heart.square.fill", "tree", "globe.central.south.asia", "trash", "cloud.sun.bolt.circle", "heart.square.fill", "tree", "globe.central.south.asia", "trash", "cloud.sun.bolt.circle", "heart.square.fill", "tree", "globe.central.south.asia", "trash", "cloud.sun.bolt.circle"]
         
         for i in 0..<systemImages.count{
             let image = Image(context: context)

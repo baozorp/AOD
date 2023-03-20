@@ -11,8 +11,8 @@ import CoreData
 private let reuseIdentifier = "Cell"
 
 protocol ImagesViewControllerDelegate {
-    func saveImage(_ image: Image)
-    func deleteImage(_ image: Image)
+    func wasChosenImage(_ image: Image)
+    func wasNotChosenImage(_ image: Image)
 }
 
 class ImagesViewController: UICollectionViewController {
@@ -40,30 +40,24 @@ class ImagesViewController: UICollectionViewController {
         getImagesFromCoreData()
     }
     
-    deinit{
-        print("was deinited")
-    }
-    
-    override func viewDidDisappear(_ animated: Bool) {
-        dismiss(animated: false)
-    }
-    
     // MARK: - Private Functions
     
     private func configureNavigationBar() {
         
         self.title = "Выберите изображения"
+        
         navigationController?.navigationBar.backgroundColor = .darkGray
         navigationController?.navigationBar.barTintColor = .darkGray
         
-        // Cancel and ready settings
+        // Cancel and ready buttons settings
         let cancelButton = UIButton(type: .custom)
         cancelButton.setTitle("Отмена", for: .normal)
         cancelButton.setTitleColor(.systemBlue, for: .normal)
         cancelButton.titleLabel?.font = UIFont.systemFont(ofSize: 20)
         cancelButton.addTarget(self, action: #selector(cancelButtonTapped), for: .touchUpInside)
-        
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: cancelButton)
+        navigationItem.leftBarButtonItem?.customView?.alpha = 0.0
+        navigationItem.leftBarButtonItem?.isHidden = true
         
         let okButton = UIButton(type: .custom)
         okButton.setTitle("Готово", for: .normal)
@@ -71,16 +65,13 @@ class ImagesViewController: UICollectionViewController {
         okButton.titleLabel?.font = UIFont.systemFont(ofSize: 20)
         okButton.addTarget(self, action: #selector(okButtonTapped), for: .touchUpInside)
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: okButton)
-        
-        navigationItem.leftBarButtonItem?.customView?.alpha = 0.0
         navigationItem.rightBarButtonItem?.customView?.alpha = 0.0
-        
-        navigationItem.leftBarButtonItem?.isHidden = true
         navigationItem.rightBarButtonItem?.isHidden = true
         
     }
     
     private func configureCollectionView() {
+        
         collectionView.backgroundColor = .darkGray
         collectionView.register(ImageCell.self, forCellWithReuseIdentifier: "imageCell")
         let longPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
@@ -90,6 +81,7 @@ class ImagesViewController: UICollectionViewController {
     }
     
     private func getImagesFromCoreData() {
+        
         let fetchRequestAll = Image.fetchRequest()
         fetchRequestAll.predicate = NSPredicate(format: "picture != nil")
         do{
@@ -201,7 +193,7 @@ class ImagesViewController: UICollectionViewController {
                 if let chosenIndex = chosenImages.firstIndex(of: image){
                     chosenImages.remove(at: chosenIndex)
                 }
-                delegate.deleteImage(image)
+                delegate.wasNotChosenImage(image)
                 context.delete(image)}
             collectionView.deleteItems(at: selectedItemsIndexes)
         }, completion: { _ in
@@ -251,7 +243,7 @@ extension ImagesViewController{
         if image.wasChosen{
             image.wasChosen = !image.wasChosen
             self.saveContext()
-            self.delegate.deleteImage(image)
+            self.delegate.wasNotChosenImage(image)
             self.chosenImages.remove(at: chosenImages.firstIndex(of: image)!)
             
             self.allImages.remove(at: allImages.firstIndex(of: image)!)
@@ -271,7 +263,7 @@ extension ImagesViewController{
         
         else{
             image.wasChosen = !image.wasChosen
-            self.delegate.saveImage(image)
+            self.delegate.wasChosenImage(image)
             self.chosenImages.append(image)
             image.indexPathRow = Int16(self.chosenImages.count - 1)
             self.saveContext()
