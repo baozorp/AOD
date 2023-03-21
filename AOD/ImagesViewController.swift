@@ -84,22 +84,15 @@ class ImagesViewController: UICollectionViewController {
         
         let fetchRequestAll = Image.fetchRequest()
         fetchRequestAll.predicate = NSPredicate(format: "picture != nil")
-        do{
-            guard try context.count(for: fetchRequestAll) > 0 else {return}
-        }catch let error as NSError{
-            print(error.localizedDescription)
-            return
-        }
-        fetchRequestAll.predicate = NSPredicate(format: "picture != nil")
         do {
             let requestAll = try context.fetch(fetchRequestAll)
-            allImages = [Image](repeating: requestAll[0], count: requestAll.count)
-            for i in 0 ..< requestAll.count {
-                allImages[Int(requestAll[i].indexPathRow)] = requestAll[i]
+            if !requestAll.isEmpty{
+                allImages = requestAll.sorted { $0.indexPathRow < $1.indexPathRow }
             }
         }catch let error as NSError {
             print(error.localizedDescription)
         }
+        
     }
     
     // MARK: - UICollectionViewDataSource
@@ -115,6 +108,7 @@ class ImagesViewController: UICollectionViewController {
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "imageCell", for: indexPath) as! ImageCell
         cell.backgroundColor = .darkGray
+        
         cell.contentMode = .scaleAspectFit
         let AODImage = allImages[indexPath.row]
         cell.image = AODImage
@@ -137,10 +131,6 @@ class ImagesViewController: UICollectionViewController {
         if !isDeleting{
             choseElementToDisplay(indexPath: indexPath)
         }
-        else{
-            choseElementToDelete(indexPath: indexPath)
-        }
-        
     }
     
     @objc func handleLongPress(_ gestureRecognizer: UILongPressGestureRecognizer) {
@@ -156,28 +146,15 @@ class ImagesViewController: UICollectionViewController {
     }
     
     @objc func cancelButtonTapped() {
-
         guard let selectedItemsIndexes = collectionView.indexPathsForSelectedItems else {return}
-        let animation = UIViewPropertyAnimator(duration: 0.1, curve: .linear)
-        for i in selectedItemsIndexes{
-            guard let cell = collectionView.cellForItem(at: i) as? ImageCell else{return}
-            cell.deleteStatus.alpha = 1.0
-            animation.addAnimations {
-                cell.deleteStatus.alpha = 0.0
+        self.isDeleting = false
+        self.collectionView.reloadData()
+        collectionView.performBatchUpdates({
+            for i in selectedItemsIndexes{
+                guard let cell = collectionView.cellForItem(at: i) as? ImageCell else{continue}
+                cell.animateDeleter(setVisible: false)
             }
-            
-        }
-        animation.addCompletion({_ in
-            self.isDeleting = false
-            self.collectionView.reloadData()
-            
         })
-        animation.startAnimation()
-        
-        if let count = collectionView.indexPathsForSelectedItems?.count{
-            self.isDeleting = false
-            count == 0 ? collectionView.reloadData() : nil
-        }
         reverseVisibleNavButtons()
         
         
@@ -201,9 +178,12 @@ class ImagesViewController: UICollectionViewController {
                 self.allImages[i].indexPathRow = Int16(i)
             }
             self.isDeleting = false
-            self.saveContext()
             self.collectionView.reloadData()
         })
+        for i in 0..<self.allImages.count{
+            self.allImages[i].indexPathRow = Int16(i)
+        }
+        self.saveContext()
         reverseVisibleNavButtons()
     }
     
@@ -230,12 +210,6 @@ extension ImagesViewController: UICollectionViewDelegateFlowLayout {
 
 extension ImagesViewController{
     
-    private func choseElementToDelete(indexPath: IndexPath){
-        guard let cell = collectionView.cellForItem(at: indexPath) as? ImageCell else {return}
-        cell.isSelected = true
-    }
-    
-    
     private func choseElementToDisplay(indexPath: IndexPath){
         guard let cell = self.collectionView.cellForItem(at: indexPath) as? ImageCell else { return }
         guard let image = cell.image else { return }
@@ -255,7 +229,6 @@ extension ImagesViewController{
             collectionView.performBatchUpdates({
                 self.collectionView.reloadData()
                 self.collectionView.moveItem(at: indexPath, to: [indexPath.startIndex, self.chosenImages.count])
-                self.saveContext()
                 cell.animateChecker()
     
             })
@@ -275,7 +248,6 @@ extension ImagesViewController{
             collectionView.performBatchUpdates({
                 self.collectionView.reloadData()
                 self.collectionView.moveItem(at: indexPath, to: [indexPath.startIndex, self.chosenImages.count-1])
-                self.saveContext()
                 cell.animateChecker()
             })
         }
