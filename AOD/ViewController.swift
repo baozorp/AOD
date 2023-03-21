@@ -77,6 +77,9 @@ class ViewController: UIViewController{
             if !fetchedImages.isEmpty {
                 imageArray = fetchedImages.sorted { $0.indexPathRow < $1.indexPathRow }
             }
+            else{
+                imageArray = []
+            }
         } catch let error as NSError {
             print(error.localizedDescription)
         }
@@ -142,14 +145,8 @@ extension ViewController: UICollectionViewDelegateFlowLayout{
 
 extension ViewController: ImagesViewControllerDelegate{
     
-    func wasChosenImage(_ image: Image) {
-        imageArray.append(image)
-        collectionView.reloadData()
-    }
-    
-    func wasNotChosenImage(_ image: Image) {
-        guard let imageIndex = imageArray.firstIndex(of: image) else {return}
-        imageArray.remove(at: imageIndex)
+    func didSavedContext() {
+        loadImagesFromCoreData()
         collectionView.reloadData()
     }
 }
@@ -165,7 +162,8 @@ extension ViewController{
             print(error.localizedDescription)
         }
         
-        let systemImages: [String] = ["mountain.2.circle", "hourglass", "play.rectangle", "circle", "cloud.sun.bolt.circle", "eraser", "tropicalstorm", "airplane", "trash", "bicycle", "ferry", "tram", "box.truck", "figure.walk", "bag", "tornado", "compass.drawing", "globe.central.south.asia", "infinity", "snowflake", "heart.square.fill", "tree", "globe.central.south.asia", "trash", "drop", "clock", "creditcard", "globe.central.south.asia", "carrot", "goforward", "heart.square.fill", "wind", "lamp.desk", "theatermasks.circle", "hammer.circle", "heart.square.fill", "tree", "fan.floor", "cloud.sun.bolt.circle", "heart.square.fill", "tree", "globe.central.south.asia", "leaf", "cloud.sun.bolt.circle", "heart.square.fill", "tree", "globe.central.south.asia", "tortoise", "bolt.circle", "gyroscope", "tree", "globe.central.south.asia", "lizard", "flame.circle", "mountain.2.circle", "hourglass", "play.rectangle", "circle", "cloud.sun.bolt.circle", "eraser", "tropicalstorm", "airplane", "trash", "bicycle", "ferry", "tram", "box.truck", "figure.walk", "bag", "tornado", "compass.drawing", "globe.central.south.asia", "infinity", "snowflake", "heart.square.fill", "tree", "globe.central.south.asia", "trash", "drop", "clock", "creditcard", "globe.central.south.asia", "carrot", "goforward", "heart.square.fill", "wind", "lamp.desk", "theatermasks.circle", "hammer.circle", "heart.square.fill", "tree", "fan.floor", "cloud.sun.bolt.circle", "heart.square.fill", "tree", "globe.central.south.asia", "leaf", "cloud.sun.bolt.circle", "heart.square.fill", "tree", "globe.central.south.asia", "tortoise", "bolt.circle", "gyroscope", "tree", "globe.central.south.asia", "lizard", "flame.circle"]
+        let systemImages: [String] = ["mountain.2.circle", "hourglass", "play.rectangle", "circle", "cloud.sun.bolt.circle"]
+//                                      , "eraser", "tropicalstorm", "airplane", "trash", "bicycle", "ferry", "tram", "box.truck", "figure.walk", "bag", "tornado", "compass.drawing", "globe.central.south.asia", "infinity", "snowflake", "heart.square.fill", "tree", "globe.central.south.asia", "trash", "drop", "clock", "creditcard", "globe.central.south.asia", "carrot", "goforward", "heart.square.fill", "wind", "lamp.desk", "theatermasks.circle", "hammer.circle", "heart.square.fill", "tree", "fan.floor", "cloud.sun.bolt.circle", "heart.square.fill", "tree", "globe.central.south.asia", "leaf", "cloud.sun.bolt.circle", "heart.square.fill", "tree", "globe.central.south.asia", "tortoise", "bolt.circle", "gyroscope", "tree", "globe.central.south.asia", "lizard", "flame.circle", "mountain.2.circle", "hourglass", "play.rectangle", "circle", "cloud.sun.bolt.circle", "eraser", "tropicalstorm", "airplane", "trash", "bicycle", "ferry", "tram", "box.truck", "figure.walk", "bag", "tornado", "compass.drawing", "globe.central.south.asia", "infinity", "snowflake", "heart.square.fill", "tree", "globe.central.south.asia", "trash", "drop", "clock", "creditcard", "globe.central.south.asia", "carrot", "goforward", "heart.square.fill", "wind", "lamp.desk", "theatermasks.circle", "hammer.circle", "heart.square.fill", "tree", "fan.floor", "cloud.sun.bolt.circle", "heart.square.fill", "tree", "globe.central.south.asia", "leaf", "cloud.sun.bolt.circle", "heart.square.fill", "tree", "globe.central.south.asia", "tortoise", "bolt.circle", "gyroscope", "tree", "globe.central.south.asia", "lizard", "flame.circle"]
         for i in 0..<systemImages.count{
             let image = Image(context: context)
             let symbolConfiguration = UIImage.SymbolConfiguration(pointSize: collectionView.frame.height)

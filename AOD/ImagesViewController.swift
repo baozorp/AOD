@@ -11,8 +11,7 @@ import CoreData
 private let reuseIdentifier = "Cell"
 
 protocol ImagesViewControllerDelegate {
-    func wasChosenImage(_ image: Image)
-    func wasNotChosenImage(_ image: Image)
+    func didSavedContext()
 }
 
 class ImagesViewController: UICollectionViewController {
@@ -20,6 +19,7 @@ class ImagesViewController: UICollectionViewController {
     // MARK: - Properties
     
     var chosenImages: [Image] = []
+    var lastElement: Int!
     var allImages: [Image] = []
     var delegate: ImagesViewControllerDelegate!
     var context: NSManagedObjectContext!
@@ -89,13 +89,8 @@ class ImagesViewController: UICollectionViewController {
         fetchRequestAll.predicate = NSPredicate(format: "picture != nil")
         
         do {
-            let requestChosen = try context.fetch(fetchRequestChosen)
+            lastElement = try context.count(for: fetchRequestChosen) - 1
             let requestAll = try context.fetch(fetchRequestAll)
-            
-            if !requestChosen.isEmpty{
-                chosenImages = requestChosen.sorted{ $0.indexPathRow < $1.indexPathRow }
-                
-            }
 
             if !requestAll.isEmpty{
                 allImages = requestAll.sorted { $0.indexPathRow < $1.indexPathRow }
@@ -187,10 +182,7 @@ class ImagesViewController: UICollectionViewController {
                 guard let cell = collectionView.cellForItem(at: i) as? ImageCell else{return}
                 guard let image = cell.image else {return}
                 allImages.remove(at: allImages.firstIndex(of: image)!)
-                if let chosenIndex = chosenImages.firstIndex(of: image){
-                    chosenImages.remove(at: chosenIndex)
-                }
-                delegate.wasNotChosenImage(image)
+                lastElement -= lastElement == 0 ? 0 : 1
                 context.delete(image)}
             collectionView.deleteItems(at: selectedItemsIndexes)
         }, completion: { _ in
@@ -204,6 +196,7 @@ class ImagesViewController: UICollectionViewController {
             self.allImages[i].indexPathRow = Int16(i)
         }
         self.saveContext()
+        delegate.didSavedContext()
         reverseVisibleNavButtons()
     }
     
@@ -234,41 +227,32 @@ extension ImagesViewController{
         guard let cell = self.collectionView.cellForItem(at: indexPath) as? ImageCell else { return }
         guard let image = cell.image else { return }
         cell.isSelected = false
+        var selectToRow: Int
         if image.wasChosen{
-            image.wasChosen = !image.wasChosen
-            self.delegate.wasNotChosenImage(image)
-            
-            self.chosenImages.remove(at: chosenImages.firstIndex(of: image)!)
-            self.allImages.remove(at: allImages.firstIndex(of: image)!)
-            self.allImages.insert(image, at: self.chosenImages.count)
-            for i in indexPath.row ..< self.allImages.count {
-                self.allImages[i].indexPathRow = Int16(i)
-            }
-            self.saveContext()
-            collectionView.performBatchUpdates({
-                self.collectionView.reloadData()
-                self.collectionView.moveItem(at: indexPath, to: [indexPath.startIndex, self.chosenImages.count])
-                cell.animateChecker(isWasSelected: true)
-            })
+            selectToRow = lastElement
+            lastElement -= 1
         }
         
         else{
-            image.wasChosen = !image.wasChosen
-            image.indexPathRow = Int16(self.chosenImages.count - 1)
-            self.delegate.wasChosenImage(image)
-            self.chosenImages.append(image)
-            self.allImages.remove(at: allImages.firstIndex(of: image)!)
-            self.allImages.insert(image, at: self.chosenImages.count - 1)
-            for i in 0 ..< self.allImages.count {
-                self.allImages[i].indexPathRow = Int16(i)
-            }
-            self.saveContext()
-            collectionView.performBatchUpdates({
-                self.collectionView.reloadData()
-                self.collectionView.moveItem(at: indexPath, to: [indexPath.startIndex, self.chosenImages.count-1])
-                cell.animateChecker(isWasSelected: true)
-            })
+            lastElement += self.allImages.count != lastElement ? 1 : 0
+            selectToRow = lastElement
         }
+        
+        // Updating CoreData
+        image.wasChosen = !image.wasChosen
+        self.allImages.remove(at: allImages.firstIndex(of: image)!)
+        self.allImages.insert(image, at: selectToRow)
+        for i in 0 ..< self.allImages.count {
+            self.allImages[i].indexPathRow = Int16(i)
+        }
+        self.saveContext()
+        self.delegate.didSavedContext()
+        collectionView.performBatchUpdates({
+            self.collectionView.reloadData()
+            self.collectionView.moveItem(at: indexPath, to: [indexPath.startIndex, selectToRow])
+            cell.animateChecker(isWasSelected: true)
+        })
+
     }
     
     private func reverseVisibleNavButtons(){
