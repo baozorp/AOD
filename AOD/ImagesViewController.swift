@@ -118,7 +118,7 @@ class ImagesViewController: UICollectionViewController {
         }
 
         cell.isDeleting = isDeleting
-        cell.animateChecker()
+        cell.animateChecker(isWasSelected: false)
         
 
 
@@ -134,11 +134,20 @@ class ImagesViewController: UICollectionViewController {
     }
     
     @objc func handleLongPress(_ gestureRecognizer: UILongPressGestureRecognizer) {
-//        guard !isDeleting else {return}
+        guard !isDeleting else {return}
         if gestureRecognizer.state == .began {
             let point = gestureRecognizer.location(in: collectionView)
             if collectionView.indexPathForItem(at: point) != nil {
+                guard let selectedItemsIndexes = collectionView?.visibleCells else {return}
                 isDeleting = !isDeleting
+                self.collectionView.reloadData()
+                collectionView.performBatchUpdates({
+                    for i in selectedItemsIndexes{
+                        guard let cell = i as? ImageCell else{continue}
+                        cell.animateChecker(isWasSelected: true)
+                    }
+                })
+
                 reverseVisibleNavButtons()
                 collectionView.reloadData()
             }
@@ -152,7 +161,7 @@ class ImagesViewController: UICollectionViewController {
         collectionView.performBatchUpdates({
             for i in selectedItemsIndexes{
                 guard let cell = collectionView.cellForItem(at: i) as? ImageCell else{continue}
-                cell.animateDeleter(setVisible: false)
+                cell.animateDeleter(isWasSelected: false)
             }
         })
         reverseVisibleNavButtons()
@@ -229,18 +238,18 @@ extension ImagesViewController{
             collectionView.performBatchUpdates({
                 self.collectionView.reloadData()
                 self.collectionView.moveItem(at: indexPath, to: [indexPath.startIndex, self.chosenImages.count])
-                cell.animateChecker()
-    
+                cell.animateChecker(isWasSelected: true)
             })
         }
         
         else{
             image.wasChosen = !image.wasChosen
+            image.indexPathRow = Int16(self.chosenImages.count - 1)
             self.delegate.wasChosenImage(image)
             self.chosenImages.append(image)
-            image.indexPathRow = Int16(self.chosenImages.count - 1)
+
             self.saveContext()
-            self.allImages.remove(at: indexPath.row)
+            self.allImages.remove(at: allImages.firstIndex(of: image)!)
             self.allImages.insert(image, at: self.chosenImages.count - 1)
             for i in (self.chosenImages.count - 1) ..< self.allImages.count {
                 self.allImages[i].indexPathRow = Int16(i)
@@ -248,7 +257,7 @@ extension ImagesViewController{
             collectionView.performBatchUpdates({
                 self.collectionView.reloadData()
                 self.collectionView.moveItem(at: indexPath, to: [indexPath.startIndex, self.chosenImages.count-1])
-                cell.animateChecker()
+                cell.animateChecker(isWasSelected: true)
             })
         }
     }

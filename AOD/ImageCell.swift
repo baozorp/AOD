@@ -22,18 +22,18 @@ class ImageCell: UICollectionViewCell {
         didSet{
             if isDeleting{
                 if isSelected{
-                    animateDeleter(setVisible: true)
+                    animateDeleter(isWasSelected: true)
                 }
                 else{
-                    animateDeleter(setVisible: false)
+                    animateDeleter(isWasSelected: false)
                 }
             }
         }
     }
     
-    func animateDeleter(setVisible: Bool){
+    func animateDeleter(isWasSelected: Bool){
         deleteAppearenceAnimation = UIViewPropertyAnimator(duration: 0.2, curve: .easeIn)
-        if setVisible{
+        if isWasSelected{
             deleteStatus.alpha = 0.0
             deleteAppearenceAnimation.addAnimations {
                 self.deleteStatus.alpha = 1.0
@@ -49,16 +49,16 @@ class ImageCell: UICollectionViewCell {
     }
     
     
-    func animateChecker(){
+    func animateChecker(isWasSelected: Bool){
         guard let image = image else {return}
-        let checkAppearenceAnimation = UIViewPropertyAnimator(duration: 0.1, curve: .linear)
-        if self.isDeleting && image.wasChosen{
+        let checkAppearenceAnimation = UIViewPropertyAnimator(duration: 0.2, curve: .linear)
+        if self.isDeleting && image.wasChosen && isWasSelected{
             self.checkStatus.transform = CGAffineTransform(scaleX: 1.0, y: 1.0)
             checkAppearenceAnimation.addAnimations {
                 self.checkStatus.transform = CGAffineTransform(scaleX: 0.01, y: 0.01)
             }
         }
-        else if self.isDeleting && !image.wasChosen{
+        else if self.isDeleting{
             self.checkStatus.transform = CGAffineTransform(scaleX: 0.01, y: 0.01)
         }
         else if image.wasChosen{
@@ -68,12 +68,14 @@ class ImageCell: UICollectionViewCell {
                 self.checkStatus.transform = CGAffineTransform(scaleX: 1.0, y: 1.0)
             }
         }
-        else if !image.wasChosen{
-            guard self.checkStatus.transform != CGAffineTransform(scaleX: 0.01, y: 0.01) else {return}
+        else if !image.wasChosen && isWasSelected{
             self.checkStatus.transform = CGAffineTransform(scaleX: 1.0, y: 1.0)
             checkAppearenceAnimation.addAnimations {
                 self.checkStatus.transform = CGAffineTransform(scaleX: 0.01, y: 0.01)
             }
+        }
+        else{
+            self.checkStatus.transform = CGAffineTransform(scaleX: 0.01, y: 0.01)
         }
         checkAppearenceAnimation.startAnimation()
     }
