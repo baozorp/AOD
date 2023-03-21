@@ -62,7 +62,6 @@ class ViewController: UIViewController{
                 imagesNC.pushViewController(imagesVC, animated: true)
                 imagesVC.delegate = self
                 imagesVC.context = context
-                imagesVC.chosenImages = imageArray
                 present(imagesNC, animated: true)
             }
         }

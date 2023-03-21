@@ -82,10 +82,21 @@ class ImagesViewController: UICollectionViewController {
     
     private func getImagesFromCoreData() {
         
+        let fetchRequestChosen = Image.fetchRequest()
+        fetchRequestChosen.predicate = NSPredicate(format: "wasChosen == %@", argumentArray: [true])
+        
         let fetchRequestAll = Image.fetchRequest()
         fetchRequestAll.predicate = NSPredicate(format: "picture != nil")
+        
         do {
+            let requestChosen = try context.fetch(fetchRequestChosen)
             let requestAll = try context.fetch(fetchRequestAll)
+            
+            if !requestChosen.isEmpty{
+                chosenImages = requestChosen.sorted{ $0.indexPathRow < $1.indexPathRow }
+                
+            }
+
             if !requestAll.isEmpty{
                 allImages = requestAll.sorted { $0.indexPathRow < $1.indexPathRow }
             }
@@ -225,16 +236,15 @@ extension ImagesViewController{
         cell.isSelected = false
         if image.wasChosen{
             image.wasChosen = !image.wasChosen
-            self.saveContext()
             self.delegate.wasNotChosenImage(image)
-            self.chosenImages.remove(at: chosenImages.firstIndex(of: image)!)
             
+            self.chosenImages.remove(at: chosenImages.firstIndex(of: image)!)
             self.allImages.remove(at: allImages.firstIndex(of: image)!)
             self.allImages.insert(image, at: self.chosenImages.count)
-            
             for i in indexPath.row ..< self.allImages.count {
                 self.allImages[i].indexPathRow = Int16(i)
             }
+            self.saveContext()
             collectionView.performBatchUpdates({
                 self.collectionView.reloadData()
                 self.collectionView.moveItem(at: indexPath, to: [indexPath.startIndex, self.chosenImages.count])
@@ -247,13 +257,12 @@ extension ImagesViewController{
             image.indexPathRow = Int16(self.chosenImages.count - 1)
             self.delegate.wasChosenImage(image)
             self.chosenImages.append(image)
-
-            self.saveContext()
             self.allImages.remove(at: allImages.firstIndex(of: image)!)
             self.allImages.insert(image, at: self.chosenImages.count - 1)
-            for i in (self.chosenImages.count - 1) ..< self.allImages.count {
+            for i in 0 ..< self.allImages.count {
                 self.allImages[i].indexPathRow = Int16(i)
             }
+            self.saveContext()
             collectionView.performBatchUpdates({
                 self.collectionView.reloadData()
                 self.collectionView.moveItem(at: indexPath, to: [indexPath.startIndex, self.chosenImages.count-1])
