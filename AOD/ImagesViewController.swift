@@ -23,12 +23,13 @@ class ImagesViewController: UICollectionViewController {
     var lastChosenElement: Int!
     var lastFromAllElements: Int!
     var isDeleting = false
-    
 
     var delegate: ImagesViewControllerDelegate!
     var context: NSManagedObjectContext!
 
-    
+    var cancelButton = UIBarButtonItem()
+    var doneButton = UIBarButtonItem()
+    var okButton = UIBarButtonItem()
     // MARK: - Lifecycle
     
     override func viewDidLoad() {
@@ -192,7 +193,7 @@ extension ImagesViewController{
     
     // "Ok" button action
     
-    @objc func okButtonTapped(){
+    @objc func doneButtonTapped(){
         
         guard let selectedItemsIndexes = collectionView.indexPathsForSelectedItems else {return}
         
@@ -294,27 +295,39 @@ extension ImagesViewController{
         
         self.title = "Выберите изображения"
         
+        let buttonColor = UIColor(red: 170/255.0, green: 170/255.0, blue: 170/255.0, alpha: 1.0)
+        
         navigationController?.navigationBar.backgroundColor = .darkGray
         navigationController?.navigationBar.barTintColor = .darkGray
         
         // Cancel and ready buttons settings
         let cancelButton = UIButton(type: .custom)
         cancelButton.setTitle("Отмена", for: .normal)
-        cancelButton.setTitleColor(.systemBlue, for: .normal)
+        cancelButton.setTitleColor(buttonColor, for: .normal)
         cancelButton.titleLabel?.font = UIFont.systemFont(ofSize: 20)
         cancelButton.addTarget(self, action: #selector(cancelButtonTapped), for: .touchUpInside)
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: cancelButton)
         navigationItem.leftBarButtonItem?.customView?.alpha = 0.0
         navigationItem.leftBarButtonItem?.isHidden = true
         
-        let okButton = UIButton(type: .custom)
-        okButton.setTitle("Готово", for: .normal)
-        okButton.setTitleColor(.systemBlue, for: .normal)
-        okButton.titleLabel?.font = UIFont.systemFont(ofSize: 20)
-        okButton.addTarget(self, action: #selector(okButtonTapped), for: .touchUpInside)
-        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: okButton)
+        let doneButton = UIButton(type: .custom)
+        doneButton.setTitle("Готово", for: .normal)
+        doneButton.setTitleColor(buttonColor, for: .normal)
+        doneButton.titleLabel?.font = UIFont.systemFont(ofSize: 20)
+        doneButton.addTarget(self, action: #selector(doneButtonTapped), for: .touchUpInside)
+        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: doneButton)
         navigationItem.rightBarButtonItem?.customView?.alpha = 0.0
         navigationItem.rightBarButtonItem?.isHidden = true
+        
+        let okButton = UIButton(type: .custom)
+        doneButton.setTitle("⊕", for: .normal)
+        doneButton.setTitleColor(buttonColor, for: .normal)
+        doneButton.titleLabel?.font = UIFont.systemFont(ofSize: 20)
+        doneButton.addTarget(self, action: #selector(doneButtonTapped), for: .touchUpInside)
+        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: doneButton)
+        navigationItem.rightBarButtonItem?.customView?.alpha = 1.0
+        navigationItem.rightBarButtonItem?.isHidden = false
+        
     }
     
     private func configureCollectionView() {
