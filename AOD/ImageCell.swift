@@ -18,21 +18,31 @@ class ImageCell: UICollectionViewCell {
     var deleteAppearenceAnimation = UIViewPropertyAnimator()
     var isDeleting = false
     
-    func animateDeleter(isWasSelected: Bool){
-        deleteAppearenceAnimation = UIViewPropertyAnimator(duration: 0.2, curve: .easeIn)
-        if isWasSelected{
-            deleteStatus.alpha = 0.0
-            deleteAppearenceAnimation.addAnimations {
-                self.deleteStatus.alpha = 1.0
+    func animateDeleter(isCollectionViewReloadData: Bool? = false){
+        if isDeleting{
+            if isSelected, !isCollectionViewReloadData!{
+                deleteAppearenceAnimation = UIViewPropertyAnimator(duration: 0.2, curve: .easeIn)
+                deleteStatus.alpha = 0.0
+                deleteAppearenceAnimation.addAnimations {
+                    self.deleteStatus.alpha = 1.0
+                }
+                deleteAppearenceAnimation.startAnimation()
+            }
+            else if !isSelected, !isCollectionViewReloadData!{
+                deleteAppearenceAnimation = UIViewPropertyAnimator(duration: 0.2, curve: .easeIn)
+                deleteStatus.alpha = 1.0
+                deleteAppearenceAnimation.addAnimations {
+                    self.deleteStatus.alpha = 0.0
+                }
+                deleteAppearenceAnimation.startAnimation()
+            }
+            else{
+                deleteStatus.alpha = 0.0
             }
         }
         else{
-            deleteStatus.alpha = 1.0
-            deleteAppearenceAnimation.addAnimations {
-                self.deleteStatus.alpha = 0.0
-            }
+            deleteStatus.alpha = 0.0
         }
-        deleteAppearenceAnimation.startAnimation()
     }
     
     

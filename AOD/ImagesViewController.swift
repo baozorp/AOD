@@ -20,7 +20,8 @@ class ImagesViewController: UICollectionViewController {
     
     var allImages: [Image] = []
     var imagesForRemove: [Image] = []
-    var lastElement: Int!
+    var lastChosenElement: Int!
+    var lastFromAllElements: Int!
     var isDeleting = false
     
 
@@ -46,7 +47,7 @@ class ImagesViewController: UICollectionViewController {
     }
     
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return allImages.count
+        return allImages.endIndex
     }
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -59,14 +60,21 @@ class ImagesViewController: UICollectionViewController {
         operationQueue.addOperation {
             let AODImage = self.allImages[indexPath.row]
             cell.image = AODImage
-            OperationQueue.main.addOperation {
+            OperationQueue.main.addOperation { [self] in
                 if let picture = AODImage.picture{
                     cell.pictureView.image = UIImage(data: picture)
                 }
-                cell.animateChecker(isWasSelected: false)
+
+                if imagesForRemove.contains(cell.image!){
+                    cell.animateDeleter()
+                }
+                else{
+                    cell.animateDeleter(isCollectionViewReloadData: true)
+                }
+               
+                cell.animateChecker(isWasSelected: true)
             }
         }
-
         
         return cell
     }
@@ -80,20 +88,19 @@ class ImagesViewController: UICollectionViewController {
         }
         else{
             guard let cell = self.collectionView.cellForItem(at: indexPath) as? ImageCell else { return }
-            cell.animateDeleter(isWasSelected: true)
+            cell.animateDeleter()
             guard let image = cell.image else {return}
             imagesForRemove.append(image)
         }
     }
     
     override func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
-        
         if !isDeleting{
             choseElementToDisplay(indexPath: indexPath)
         }
         else{
             guard let cell = self.collectionView.cellForItem(at: indexPath) as? ImageCell else { return }
-            cell.animateDeleter(isWasSelected: false)
+            cell.animateDeleter()
             guard let image = cell.image else {return}
             guard let index = imagesForRemove.firstIndex(of: image) else{return}
             imagesForRemove.remove(at: index)
@@ -114,10 +121,10 @@ extension ImagesViewController{
         fetchRequestAll.predicate = NSPredicate(format: "picture != nil")
         
         do {
-            lastElement = try context.count(for: fetchRequestChosen) - 1
+            lastChosenElement = try context.count(for: fetchRequestChosen) - 1
             let requestAll = try context.fetch(fetchRequestAll)
-            
             if !requestAll.isEmpty{
+                lastFromAllElements = requestAll.count - 1
                 allImages = requestAll.sorted { $0.indexPathRow < $1.indexPathRow }
             }
         }catch let error as NSError {
@@ -144,12 +151,12 @@ extension ImagesViewController{
         if gestureRecognizer.state == .began {
             let point = gestureRecognizer.location(in: collectionView)
             if collectionView.indexPathForItem(at: point) != nil {
-                guard let visibleCells = collectionView?.visibleCells as? [ImageCell] else{return}
                 isDeleting = true
-                for i in visibleCells{
-                    i.isDeleting = true
-                    i.shakeCell()
-                    i.animateChecker(isWasSelected: true)
+                for i in 0...lastFromAllElements{
+                    guard let cell = collectionView.cellForItem(at: IndexPath(row: i, section: 0)) as? ImageCell else{continue}
+                    cell.isDeleting = true
+                    cell.shakeCell()
+                    cell.animateChecker(isWasSelected: true)
                 }
                 reverseVisibleNavButtons()
             }
@@ -161,18 +168,19 @@ extension ImagesViewController{
     
     @objc func cancelButtonTapped() {
         
-        guard let visibleCells = collectionView.visibleCells as? [ImageCell] else{return}
-        
         self.isDeleting = false
         
         // Denimating shaking, animating checkers and deleters
-        for i in visibleCells{
-            i.isDeleting = self.isDeleting
-            i.shakeCell()
-            i.animateChecker(isWasSelected: false)
-            guard let image = i.image else {continue}
+        
+        for i in 0...lastFromAllElements{
+            guard let cell = collectionView.cellForItem(at: IndexPath(row: i, section: 0)) as? ImageCell else{continue}
+            cell.isDeleting = self.isDeleting
+            cell.shakeCell()
+            cell.animateChecker(isWasSelected: false)
+            guard let image = cell.image else {continue}
+            cell.isSelected = false
             if imagesForRemove.contains(image){
-                i.animateDeleter(isWasSelected: false)
+                cell.animateDeleter()
             }
         }
         for i in imagesForRemove{
@@ -187,25 +195,29 @@ extension ImagesViewController{
     @objc func okButtonTapped(){
         
         guard let selectedItemsIndexes = collectionView.indexPathsForSelectedItems else {return}
-        guard let visibleCells = collectionView.visibleCells as? [ImageCell] else{return}
+        
         self.isDeleting = false
         
         for i in imagesForRemove{
             allImages.remove(at: allImages.firstIndex(of: i)!)
             imagesForRemove.remove(at: imagesForRemove.firstIndex(of: i)!)
-            lastElement -= lastElement == -1 ? 0 : 1
-            context.delete(i)}
-            
+            if i.wasChosen{
+                lastChosenElement -= lastChosenElement == -1 ? 0 : 1
+            }
+
+            context.delete(i)
+        }
         collectionView.deleteItems(at: selectedItemsIndexes)
         
         // Denimating shaking, animating checkers and deleters
-        for i in visibleCells{
-            i.isDeleting = self.isDeleting
-            i.shakeCell()
-            i.animateChecker(isWasSelected: false)
-            guard let image = i.image else {continue}
+        for i in 0...lastFromAllElements{
+            guard let cell = collectionView.cellForItem(at: IndexPath(row: i, section: 0)) as? ImageCell else{continue}
+            cell.isDeleting = self.isDeleting
+            cell.shakeCell()
+            cell.animateChecker(isWasSelected: false)
+            guard let image = cell.image else {continue}
             if imagesForRemove.contains(image){
-                i.animateDeleter(isWasSelected: false)
+                cell.animateDeleter()
             }
         }
         
@@ -225,13 +237,13 @@ extension ImagesViewController{
         cell.isSelected = false
         var selectToRow: Int
         if image.wasChosen{
-            selectToRow = lastElement
-            lastElement -= 1
+            selectToRow = lastChosenElement
+            lastChosenElement -= 1
         }
         
         else{
-            lastElement += self.allImages.count != lastElement ? 1 : 0
-            selectToRow = lastElement
+            lastChosenElement += self.allImages.count != lastChosenElement ? 1 : 0
+            selectToRow = lastChosenElement
         }
         
         // Updating CoreData
