@@ -9,8 +9,8 @@ import UIKit
 import CoreData
 
 class ViewController: UIViewController{
-        
-    private var imageArray: [Image] = []
+    
+    private var numberOfImages = 0
     private var context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
     private var collectionView: UICollectionView!
@@ -73,13 +73,7 @@ class ViewController: UIViewController{
         let fetchRequest = Image.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "wasChosen == %@", argumentArray: [true])
         do {
-            let fetchedImages = try context.fetch(fetchRequest)
-            if !fetchedImages.isEmpty {
-                imageArray = fetchedImages.sorted { $0.indexPathRow < $1.indexPathRow }
-            }
-            else{
-                imageArray = []
-            }
+            numberOfImages = try context.count(for: fetchRequest)
         } catch let error as NSError {
             print(error.localizedDescription)
         }
@@ -90,23 +84,38 @@ class ViewController: UIViewController{
 
 extension ViewController: UICollectionViewDataSource{
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return imageArray.isEmpty ? 1 : imageArray.count
+        return numberOfImages
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        
+
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "imageCell", for: indexPath) as! ImageCell
         
-        if imageArray.count == 0{
+        if numberOfImages == 0{
             cell.pictureView.tintColor = .darkGray
             cell.pictureView.image = UIImage(systemName: "nosign")
         }
         else{
-            cell.pictureView.image = UIImage(data: imageArray[indexPath.row].picture!)
+            // Подгружаем данные из СoreData
+            let operationQueue = OperationQueue()
+            operationQueue.addOperation {
+                let fetchRequest = Image.fetchRequest()
+                fetchRequest.predicate = NSPredicate(format: "indexPathRow == %@", argumentArray: [Int16(indexPath.row)])
+                var fetchedImages: Image?
+                do {
+                    fetchedImages = try self.context.fetch(fetchRequest).first!
+                } catch let error as NSError {
+                    print(error.localizedDescription)
+                }
+                OperationQueue.main.addOperation {
+                    cell.pictureView.image = UIImage(data: (fetchedImages!.picture)!)
+                }
+            }
         }
-        
+
         return cell
     }
+
 }
 
 // MARK: - UICollectionViewDelegate
@@ -171,7 +180,13 @@ extension ViewController{
             image.wasChosen = true
             image.indexPathRow = Int16(i)
         }
-        
+//        for i in 0...100{
+//            let image = Image(context: context)
+//            image.picture = UIImage(named: "cosmo")?.pngData()
+//            image.wasChosen = true
+//            image.indexPathRow = Int16(i)
+//        }
+
         do{
             try context.save()
         }catch let error as NSError{

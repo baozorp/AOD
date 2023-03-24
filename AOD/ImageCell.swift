@@ -18,19 +18,6 @@ class ImageCell: UICollectionViewCell {
     var deleteAppearenceAnimation = UIViewPropertyAnimator()
     var isDeleting = false
     
-    override var isSelected: Bool{
-        didSet{
-            if isDeleting{
-                if isSelected{
-                    animateDeleter(isWasSelected: true)
-                }
-                else{
-                    animateDeleter(isWasSelected: false)
-                }
-            }
-        }
-    }
-    
     func animateDeleter(isWasSelected: Bool){
         deleteAppearenceAnimation = UIViewPropertyAnimator(duration: 0.2, curve: .easeIn)
         if isWasSelected{
@@ -99,7 +86,7 @@ class ImageCell: UICollectionViewCell {
         shakeCell()
     }
 
-    private func shakeCell() {
+    func shakeCell() {
         if isDeleting{
             self.contentView.layer.add(firstAnimation, forKey: "firstAnimation")
             self.contentView.layer.add(secondAnimation, forKey: "secondAnimation")
@@ -146,6 +133,7 @@ class ImageCell: UICollectionViewCell {
     private func setupViews() {
         
         // Views settings
+        pictureView.layer.masksToBounds = true
         pictureView.contentMode = .scaleAspectFit
         pictureView.layer.cornerRadius = 20
         pictureView.frame = CGRect(x: 0, y: 0, width: self.frame.width, height: self.frame.height)

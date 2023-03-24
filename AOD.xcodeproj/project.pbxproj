@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B46076E629CDA42B00AC7E0D /* File.swift in Sources */ = {isa = PBXBuildFile; fileRef = B46076E529CDA42B00AC7E0D /* File.swift */; };
 		B4A93A1B29C2084600B334F1 /* ImagesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4A93A1A29C2084600B334F1 /* ImagesViewController.swift */; };
 		B4DEF94729C128B600E3C172 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4DEF94629C128B600E3C172 /* AppDelegate.swift */; };
 		B4DEF94929C128B600E3C172 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4DEF94829C128B600E3C172 /* SceneDelegate.swift */; };
@@ -18,6 +19,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		B46076E529CDA42B00AC7E0D /* File.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = File.swift; sourceTree = "<group>"; };
 		B4A93A1A29C2084600B334F1 /* ImagesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagesViewController.swift; sourceTree = "<group>"; };
 		B4DEF94329C128B600E3C172 /* AOD.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AOD.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B4DEF94629C128B600E3C172 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -65,6 +67,7 @@
 				B4DEF94829C128B600E3C172 /* SceneDelegate.swift */,
 				B4DEF94A29C128B600E3C172 /* ViewController.swift */,
 				B4A93A1A29C2084600B334F1 /* ImagesViewController.swift */,
+				B46076E529CDA42B00AC7E0D /* File.swift */,
 				B4DEF95229C128B700E3C172 /* Assets.xcassets */,
 				B4DEF95429C128B700E3C172 /* LaunchScreen.storyboard */,
 				B4DEF95729C128B700E3C172 /* Info.plist */,
@@ -145,6 +148,7 @@
 			files = (
 				B4A93A1B29C2084600B334F1 /* ImagesViewController.swift in Sources */,
 				B4DEF95129C128B600E3C172 /* AOD.xcdatamodeld in Sources */,
+				B46076E629CDA42B00AC7E0D /* File.swift in Sources */,
 				B4DEF94B29C128B600E3C172 /* ViewController.swift in Sources */,
 				B4DEF94729C128B600E3C172 /* AppDelegate.swift in Sources */,
 				B4DEF94929C128B600E3C172 /* SceneDelegate.swift in Sources */,
