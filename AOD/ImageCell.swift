@@ -145,7 +145,7 @@ class ImageCell: UICollectionViewCell {
         // Views settings
         pictureView.layer.masksToBounds = true
         pictureView.contentMode = .scaleAspectFit
-        pictureView.layer.cornerRadius = 20
+        pictureView.layer.cornerRadius = 50
         pictureView.frame = CGRect(x: 0, y: 0, width: self.frame.width, height: self.frame.height)
         
         let coefficient = CGFloat(5)

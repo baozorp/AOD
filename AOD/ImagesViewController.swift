@@ -54,17 +54,17 @@ class ImagesViewController: UICollectionViewController {
 
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "imageCell", for: indexPath) as! ImageCell
         cell.isDeleting = self.isDeleting
-        
         // Add async to get rid of lags in collectionView
         let operationQueue = OperationQueue()
         operationQueue.addOperation {
             let AODImage = self.allImages[indexPath.row]
             cell.image = AODImage
             OperationQueue.main.addOperation { [self] in
+                cell.animateChecker(isWasSelected: true)
+                cell.pictureView.layer.cornerRadius = 25
                 if let picture = AODImage.picture{
                     cell.pictureView.image = UIImage(data: picture)
                 }
-
                 if imagesForRemove.contains(cell.image!){
                     cell.animateDeleter()
                 }
@@ -72,7 +72,7 @@ class ImagesViewController: UICollectionViewController {
                     cell.animateDeleter(isCollectionViewReloadData: true)
                 }
                
-                cell.animateChecker(isWasSelected: true)
+                
             }
         }
         
