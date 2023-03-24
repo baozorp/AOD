@@ -27,9 +27,9 @@ class ImagesViewController: UICollectionViewController {
     var delegate: ImagesViewControllerDelegate!
     var context: NSManagedObjectContext!
 
-    var cancelButton = UIBarButtonItem()
-    var doneButton = UIBarButtonItem()
-    var okButton = UIBarButtonItem()
+    var cancelButtonItem = UIBarButtonItem()
+    var doneButtonItem = UIBarButtonItem()
+    var okButtonItem = UIBarButtonItem()
     // MARK: - Lifecycle
     
     override func viewDidLoad() {
@@ -241,7 +241,6 @@ extension ImagesViewController{
             selectToRow = lastChosenElement
             lastChosenElement -= 1
         }
-        
         else{
             lastChosenElement += self.allImages.count != lastChosenElement ? 1 : 0
             selectToRow = lastChosenElement
@@ -263,27 +262,67 @@ extension ImagesViewController{
     }
     
     private func reverseVisibleNavButtons(){
-        let navBarButtonsAnimtion = UIViewPropertyAnimator(duration: 0.15, curve: .linear){
-            guard let alpha = self.navigationItem.leftBarButtonItem?.isHidden else {return}
-            if alpha == true{
-                self.navigationItem.leftBarButtonItem?.isHidden = false
-                self.navigationItem.rightBarButtonItem?.isHidden = false
-                self.navigationItem.leftBarButtonItem?.customView?.alpha = 1.0
-                self.navigationItem.rightBarButtonItem?.customView?.alpha = 1.0
+        let okAnimation = UIViewPropertyAnimator(duration: 0.1, curve: .linear)
+        let cancelDoneAnimation = UIViewPropertyAnimator(duration: 0.1, curve: .linear)
+        var okWasAnimated = false
+        var cancelDoneWasAnimated = false
+        
+        okAnimation.addAnimations {[unowned self] in
+            guard let isHidden = navigationItem.rightBarButtonItem?.isHidden else {return}
+
+            if isHidden{
+                navigationItem.rightBarButtonItem?.isHidden = false
+                navigationItem.rightBarButtonItem?.customView?.alpha = 1.0
             }
             else{
-                self.navigationItem.leftBarButtonItem?.customView?.alpha = 0.0
-                self.navigationItem.rightBarButtonItem?.customView?.alpha = 0.0
+                navigationItem.rightBarButtonItem?.customView?.alpha = 0.0
             }
+            okWasAnimated = true
         }
-        navBarButtonsAnimtion.addCompletion({_ in
-            guard let alpha = self.navigationItem.leftBarButtonItem?.customView?.alpha else {return}
-            if alpha == 0.0{
-                self.navigationItem.leftBarButtonItem?.isHidden = true
-                self.navigationItem.rightBarButtonItem?.isHidden = true
+        okAnimation.addCompletion({[unowned self] _ in
+            guard !cancelDoneWasAnimated else {return}
+            if navigationItem.rightBarButtonItem?.customView?.alpha == 0.0{
+                
+                navigationItem.leftBarButtonItem = cancelButtonItem
+                navigationItem.rightBarButtonItem = doneButtonItem
+                
+                navigationItem.leftBarButtonItem?.isHidden = true
+                navigationItem.rightBarButtonItem?.isHidden = true
+
             }
+            cancelDoneAnimation.startAnimation()
         })
-        navBarButtonsAnimtion.startAnimation()
+        
+        cancelDoneAnimation.addAnimations {[unowned self] in
+            guard let isHidden = navigationItem.leftBarButtonItem?.isHidden else {return}
+            if isHidden{
+                navigationItem.leftBarButtonItem?.isHidden = false
+                navigationItem.rightBarButtonItem?.isHidden = false
+                navigationItem.leftBarButtonItem?.customView?.alpha = 1.0
+                navigationItem.rightBarButtonItem?.customView?.alpha = 1.0
+            }
+            else{
+                navigationItem.leftBarButtonItem?.customView?.alpha = 0.0
+                navigationItem.rightBarButtonItem?.customView?.alpha = 0.0
+            }
+            cancelDoneWasAnimated = true
+        }
+        cancelDoneAnimation.addCompletion({[unowned self] _ in
+            if navigationItem.leftBarButtonItem?.customView?.alpha == 0.0{
+                navigationItem.leftBarButtonItem?.isHidden = true
+                navigationItem.rightBarButtonItem = okButtonItem
+                navigationItem.rightBarButtonItem?.isHidden = true
+            }
+            guard !okWasAnimated else {return}
+            okAnimation.startAnimation()
+        })
+        
+        if navigationItem.rightBarButtonItem! == okButtonItem{
+            okAnimation.startAnimation()
+        }
+        else{
+            cancelDoneAnimation.startAnimation()
+        }
     }
 }
 
@@ -300,31 +339,32 @@ extension ImagesViewController{
         navigationController?.navigationBar.backgroundColor = .darkGray
         navigationController?.navigationBar.barTintColor = .darkGray
         
-        // Cancel and ready buttons settings
+        // Cancel, done, ok buttons settings
         let cancelButton = UIButton(type: .custom)
         cancelButton.setTitle("Отмена", for: .normal)
         cancelButton.setTitleColor(buttonColor, for: .normal)
         cancelButton.titleLabel?.font = UIFont.systemFont(ofSize: 20)
         cancelButton.addTarget(self, action: #selector(cancelButtonTapped), for: .touchUpInside)
-        navigationItem.leftBarButtonItem = UIBarButtonItem(customView: cancelButton)
+        cancelButtonItem =  UIBarButtonItem(customView: cancelButton)
+        navigationItem.leftBarButtonItem = cancelButtonItem
         navigationItem.leftBarButtonItem?.customView?.alpha = 0.0
         navigationItem.leftBarButtonItem?.isHidden = true
-        
+
         let doneButton = UIButton(type: .custom)
         doneButton.setTitle("Готово", for: .normal)
         doneButton.setTitleColor(buttonColor, for: .normal)
         doneButton.titleLabel?.font = UIFont.systemFont(ofSize: 20)
         doneButton.addTarget(self, action: #selector(doneButtonTapped), for: .touchUpInside)
-        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: doneButton)
-        navigationItem.rightBarButtonItem?.customView?.alpha = 0.0
-        navigationItem.rightBarButtonItem?.isHidden = true
+        doneButtonItem =  UIBarButtonItem(customView: doneButton)
         
         let okButton = UIButton(type: .custom)
-        doneButton.setTitle("⊕", for: .normal)
-        doneButton.setTitleColor(buttonColor, for: .normal)
-        doneButton.titleLabel?.font = UIFont.systemFont(ofSize: 20)
-        doneButton.addTarget(self, action: #selector(doneButtonTapped), for: .touchUpInside)
-        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: doneButton)
+        okButton.setTitle("⊕", for: .normal)
+        okButton.sizeToFit()
+        okButton.setTitleColor(buttonColor, for: .normal)
+        okButton.titleLabel?.font = UIFont.systemFont(ofSize: 30)
+        okButton.addTarget(self, action: #selector(doneButtonTapped), for: .touchUpInside)
+        okButtonItem =  UIBarButtonItem(customView: okButton)
+        navigationItem.rightBarButtonItem = okButtonItem
         navigationItem.rightBarButtonItem?.customView?.alpha = 1.0
         navigationItem.rightBarButtonItem?.isHidden = false
         
