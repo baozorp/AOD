@@ -411,7 +411,6 @@ extension ImagesViewController: PHPickerViewControllerDelegate{
             dispatchGroup.enter()
             if result.itemProvider.hasItemConformingToTypeIdentifier(UTType.heic.identifier){
                 result.itemProvider.loadFileRepresentation(forTypeIdentifier: UTType.heic.identifier) {[unowned self] url, error in
-                    var heicImage = UIImage()
                     defer {
                         dispatchGroup.leave()
                     }
@@ -425,45 +424,11 @@ extension ImagesViewController: PHPickerViewControllerDelegate{
                             print("Error creating image from data")
                             return
                         }
-                        heicImage = image
+                        imageAdding(image: image)
                     } catch {
                         print("Error loading image: \(error.localizedDescription)")
                     }
-                    lastChosenElement += 1
-                    lastFromAllElements += 1
-                    // Crop a square in the middle of the image along the shortest side
-                    let imageSize = heicImage.size
-                    let shorterSide = min(imageSize.width, imageSize.height)
-                    let squareSize = CGSize(width: shorterSide, height: shorterSide)
                     
-                    UIGraphicsBeginImageContextWithOptions(squareSize, false, 0.0)
-                  
-
-                    let drawRect = CGRect(x: -(imageSize.width - shorterSide) / 2.0,
-                                          y: -(imageSize.height - shorterSide) / 2.0,
-                                          width: imageSize.width,
-                                          height: imageSize.height)
-                    heicImage.draw(in: drawRect)
-                    
-                    guard let squareImage = UIGraphicsGetImageFromCurrentImageContext() else {
-                        UIGraphicsEndImageContext()
-                        return}
-                    UIGraphicsEndImageContext()
-                    
-                    // Reduce the resolution for optimization
-                    let reduseSize = CGSize(width: AODCollectionViewHeight, height: AODCollectionViewHeight)
-                    UIGraphicsBeginImageContextWithOptions(reduseSize, false, 0.0)
-                    squareImage.draw(in: CGRect(x: 0, y: 0, width: reduseSize.width, height: reduseSize.height))
-                    
-                    guard let newImage = UIGraphicsGetImageFromCurrentImageContext() else {
-                        return
-                    }
-                    UIGraphicsEndImageContext()
-                    let newItem = Image(context: context)
-                    newItem.picture = newImage.pngData()
-                    newItem.wasChosen = true
-                    newItem.indexPathRow = Int16(lastChosenElement)
-                    allImages.insert(newItem, at: lastChosenElement)
                 }
             }
             else if result.itemProvider.canLoadObject(ofClass: UIImage.self){
@@ -475,41 +440,7 @@ extension ImagesViewController: PHPickerViewControllerDelegate{
                         print("Error loading image: \(error?.localizedDescription ?? "Unknown error")")
                         return
                     }
-                    lastChosenElement += 1
-                    lastFromAllElements += 1
-                    // Crop a square in the middle of the image along the shortest side
-                    let imageSize = image.size
-                    let shorterSide = min(imageSize.width, imageSize.height)
-                    let squareSize = CGSize(width: shorterSide, height: shorterSide)
-                    
-                    UIGraphicsBeginImageContextWithOptions(squareSize, false, 0.0)
-                  
-
-                    let drawRect = CGRect(x: -(imageSize.width - shorterSide) / 2.0,
-                                          y: -(imageSize.height - shorterSide) / 2.0,
-                                          width: imageSize.width,
-                                          height: imageSize.height)
-                    image.draw(in: drawRect)
-                    
-                    guard let squareImage = UIGraphicsGetImageFromCurrentImageContext() else {
-                        UIGraphicsEndImageContext()
-                        return}
-                    UIGraphicsEndImageContext()
-                    
-                    // Reduce the resolution for optimization
-                    let reduseSize = CGSize(width: AODCollectionViewHeight, height: AODCollectionViewHeight)
-                    UIGraphicsBeginImageContextWithOptions(reduseSize, false, 0.0)
-                    squareImage.draw(in: CGRect(x: 0, y: 0, width: reduseSize.width, height: reduseSize.height))
-                    
-                    guard let newImage = UIGraphicsGetImageFromCurrentImageContext() else {
-                        return
-                    }
-                    UIGraphicsEndImageContext()
-                    let newItem = Image(context: context)
-                    newItem.picture = newImage.pngData()
-                    newItem.wasChosen = true
-                    newItem.indexPathRow = Int16(lastChosenElement)
-                    allImages.insert(newItem, at: lastChosenElement)
+                    imageAdding(image: image)
                 }
             } else {
                 print("Unsupported item provider")
@@ -527,7 +458,45 @@ extension ImagesViewController: PHPickerViewControllerDelegate{
         }
     }
 
-    @objc func pickImages(_ sender: Any) {
+    private func imageAdding(image: UIImage){
+        lastChosenElement += 1
+        lastFromAllElements += 1
+        // Crop a square in the middle of the image along the shortest side
+        let imageSize = image.size
+        let shorterSide = min(imageSize.width, imageSize.height)
+        let squareSize = CGSize(width: shorterSide, height: shorterSide)
+        
+        UIGraphicsBeginImageContextWithOptions(squareSize, false, 0.0)
+      
+
+        let drawRect = CGRect(x: -(imageSize.width - shorterSide) / 2.0,
+                              y: -(imageSize.height - shorterSide) / 2.0,
+                              width: imageSize.width,
+                              height: imageSize.height)
+        image.draw(in: drawRect)
+        
+        guard let squareImage = UIGraphicsGetImageFromCurrentImageContext() else {
+            UIGraphicsEndImageContext()
+            return}
+        UIGraphicsEndImageContext()
+        
+        // Reduce the resolution for optimization
+        let reduseSize = CGSize(width: AODCollectionViewHeight, height: AODCollectionViewHeight)
+        UIGraphicsBeginImageContextWithOptions(reduseSize, false, 0.0)
+        squareImage.draw(in: CGRect(x: 0, y: 0, width: reduseSize.width, height: reduseSize.height))
+        
+        guard let newImage = UIGraphicsGetImageFromCurrentImageContext() else {
+            return
+        }
+        UIGraphicsEndImageContext()
+        let newItem = Image(context: context)
+        newItem.picture = newImage.pngData()
+        newItem.wasChosen = true
+        newItem.indexPathRow = Int16(lastChosenElement)
+        allImages.insert(newItem, at: lastChosenElement)
+    }
+    
+    @objc private func pickImages(_ sender: Any) {
         var configuration = PHPickerConfiguration()
         configuration.filter = .images
         configuration.selectionLimit = 0 // 0 - выбор неограниченного кол-ва изображений
