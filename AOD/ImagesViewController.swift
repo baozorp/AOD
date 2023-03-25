@@ -7,6 +7,7 @@
 
 import UIKit
 import CoreData
+import PhotosUI
 
 private let reuseIdentifier = "Cell"
 
@@ -26,6 +27,7 @@ class ImagesViewController: UICollectionViewController {
 
     var delegate: ImagesViewControllerDelegate!
     var context: NSManagedObjectContext!
+    var AODCollectionViewHeight: CGFloat!
 
     var cancelButtonItem = UIBarButtonItem()
     var doneButtonItem = UIBarButtonItem()
@@ -204,14 +206,16 @@ extension ImagesViewController{
             imagesForRemove.remove(at: imagesForRemove.firstIndex(of: i)!)
             if i.wasChosen{
                 lastChosenElement -= lastChosenElement == -1 ? 0 : 1
+               
             }
-
+            lastFromAllElements -= 1
             context.delete(i)
         }
         collectionView.deleteItems(at: selectedItemsIndexes)
         
+        
         // Denimating shaking, animating checkers and deleters
-        for i in 0...lastFromAllElements{
+        for i in -1...lastFromAllElements{
             guard let cell = collectionView.cellForItem(at: IndexPath(row: i, section: 0)) as? ImageCell else{continue}
             cell.isDeleting = self.isDeleting
             cell.shakeCell()
@@ -221,8 +225,7 @@ extension ImagesViewController{
                 cell.animateDeleter()
             }
         }
-        
-        for i in 0..<self.allImages.count{
+        for i in 0..<lastFromAllElements+1{
             self.allImages[i].indexPathRow = Int16(i)
         }
 
@@ -362,7 +365,7 @@ extension ImagesViewController{
         okButton.sizeToFit()
         okButton.setTitleColor(buttonColor, for: .normal)
         okButton.titleLabel?.font = UIFont.systemFont(ofSize: 30)
-        okButton.addTarget(self, action: #selector(doneButtonTapped), for: .touchUpInside)
+        okButton.addTarget(self, action: #selector(pickImages), for: .touchUpInside)
         okButtonItem =  UIBarButtonItem(customView: okButton)
         navigationItem.rightBarButtonItem = okButtonItem
         navigationItem.rightBarButtonItem?.customView?.alpha = 1.0
@@ -382,6 +385,71 @@ extension ImagesViewController{
         let inset: CGFloat = view.frame.width/20 // значение отступа
         layout.sectionInset = UIEdgeInsets(top: 0, left: inset, bottom: 0, right: inset)
         collectionView.collectionViewLayout = layout
+    }
+}
+
+extension ImagesViewController: PHPickerViewControllerDelegate{
+    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+        let dispatchGroup = DispatchGroup()
+
+        let dispatchSemaphore = DispatchSemaphore(value: 0)
+
+        for result in results {
+            if result.itemProvider.canLoadObject(ofClass: UIImage.self) {
+                dispatchGroup.enter()
+                result.itemProvider.loadObject(ofClass: UIImage.self) { [unowned self] image, error in
+                    defer {
+                        dispatchGroup.leave()
+                    }
+                    
+                    guard let image = image as? UIImage else {
+                        print("Error loading image: \(error?.localizedDescription ?? "Unknown error")")
+                        return
+                    }
+                    
+                    let newSize = CGSize(width: AODCollectionViewHeight, height: AODCollectionViewHeight)
+                    print(newSize)
+                    UIGraphicsBeginImageContextWithOptions(newSize, false, 0.0)
+                    image.draw(in: CGRect(x: 0, y: 0, width: newSize.width, height: newSize.height))
+                    guard let newImage = UIGraphicsGetImageFromCurrentImageContext() else {
+                        return
+                    }
+                    UIGraphicsEndImageContext()
+                    
+                    let newItem = Image(context: context)
+                    lastChosenElement += 1
+                    lastFromAllElements += 1
+                    newItem.picture = newImage.pngData()
+                    newItem.wasChosen = true
+                    newItem.indexPathRow = Int16(lastChosenElement)
+                    allImages.insert(newItem, at: lastChosenElement)
+                }
+            } else {
+                print("Unsupported item provider")
+            }
+        }
+        
+        dispatchGroup.notify(queue: DispatchQueue.main) {[unowned self] in
+            for i in 0...lastFromAllElements {
+                allImages[i].indexPathRow = Int16(i)
+            }
+            saveContext()
+            delegate.didSavedContext()
+            collectionView.reloadData()
+            dismiss(animated: true, completion: nil)
+        }
+    }
+
+
+    
+    @objc func pickImages(_ sender: Any) {
+        var configuration = PHPickerConfiguration()
+        configuration.filter = .images
+        configuration.selectionLimit = 0 // 0 - выбор неограниченного кол-ва изображений
+        
+        let picker = PHPickerViewController(configuration: configuration)
+        picker.delegate = self
+        present(picker, animated: true)
     }
 }
 
