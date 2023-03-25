@@ -232,14 +232,16 @@ extension ViewController: ImagesViewControllerDelegate{
 extension ViewController{
     
     private func firstStartChecker(){
-        let fetchRequest = Image.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "picture != nil")
+
+        let firstStartRequest = FirstStart.fetchRequest()
+
         do{
-            guard try context.fetch(fetchRequest).count == 0 else {return}
+            guard try context.count(for: firstStartRequest) == 0 else {return}
+
         }catch let error as NSError{
             print(error.localizedDescription)
         }
-        
+        _ = FirstStart(context: context)
         let image = UIImage(named: "cosmo")
         let newSize = CGSize(width: collectionView.frame.height, height: collectionView.frame.height)
         UIGraphicsBeginImageContextWithOptions(newSize, false, 0.0)
@@ -262,8 +264,7 @@ extension ViewController{
             image.wasChosen = false
             image.indexPathRow = Int16(i)
         }
-        
-
+    
         do{
             try context.save()
         }catch let error as NSError{
