@@ -31,6 +31,13 @@ class ViewController: UIViewController{
         loadImagesFromCoreData()
     }
     
+    // Timer stop
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        clocktimer?.invalidate()
+        clocktimer = nil
+    }
+    
     private func setupUI() {
         view.backgroundColor = .black
         setupCollectionView()
@@ -71,8 +78,6 @@ class ViewController: UIViewController{
             date.text = dateFormatter.string(from: Date())
             guard clock.text! != previousMinute else {return}
             previousMinute = clock.text ?? ""
-            print(previousMinute)
-            print(clock.text!)
             if moveToTop, clock.frame.minY > (self.view.frame.minY + self.view.safeAreaInsets.top){
                 clock.center.y -= 10
                 date.center.y -= 10
