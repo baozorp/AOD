@@ -85,7 +85,7 @@ class ViewController: UIViewController{
 
 extension ViewController: UICollectionViewDataSource{
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return numberOfImages
+        return numberOfImages == 0 ? 1: numberOfImages
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -174,40 +174,29 @@ extension ViewController{
             print(error.localizedDescription)
         }
         
-//        let systemImages: [String] = ["mountain.2.circle", "hourglass", "play.rectangle", "circle", "cloud.sun.bolt.circle", "eraser", "tropicalstorm", "airplane", "trash", "bicycle", "ferry", "tram", "box.truck", "figure.walk", "bag", "tornado", "compass.drawing", "globe.central.south.asia", "infinity", "snowflake", "heart.square.fill", "tree", "globe.central.south.asia", "trash", "drop", "clock", "creditcard", "globe.central.south.asia", "carrot", "goforward", "heart.square.fill", "wind", "lamp.desk", "theatermasks.circle", "hammer.circle", "heart.square.fill", "tree", "fan.floor", "cloud.sun.bolt.circle", "heart.square.fill", "tree", "globe.central.south.asia", "leaf", "cloud.sun.bolt.circle", "heart.square.fill", "tree", "globe.central.south.asia", "tortoise", "bolt.circle", "gyroscope", "tree", "globe.central.south.asia", "lizard", "flame.circle", "mountain.2.circle", "hourglass", "play.rectangle", "circle", "cloud.sun.bolt.circle", "eraser", "tropicalstorm", "airplane", "trash", "bicycle", "ferry", "tram", "box.truck", "figure.walk", "bag", "tornado", "compass.drawing", "globe.central.south.asia", "infinity", "snowflake", "heart.square.fill", "tree", "globe.central.south.asia", "trash", "drop", "clock", "creditcard", "globe.central.south.asia", "carrot", "goforward", "heart.square.fill", "wind", "lamp.desk", "theatermasks.circle", "hammer.circle", "heart.square.fill", "tree", "fan.floor", "cloud.sun.bolt.circle", "heart.square.fill", "tree", "globe.central.south.asia", "leaf", "cloud.sun.bolt.circle", "heart.square.fill", "tree", "globe.central.south.asia", "tortoise", "bolt.circle", "gyroscope", "tree", "globe.central.south.asia", "lizard", "flame.circle"]
-//        for i in 0..<systemImages.count{
-//            let image = Image(context: context)
-//            let symbolConfiguration = UIImage.SymbolConfiguration(pointSize: collectionView.frame.height)
-//            let systemImage = UIImage(systemName: systemImages[i], withConfiguration: symbolConfiguration)?.withTintColor(.white)
-//            image.picture = systemImage?.pngData()
-//            image.wasChosen = true
-//            image.indexPathRow = Int16(i)
-//        }
-        
         let image = UIImage(named: "cosmo")
-
-        // Новые размеры
         let newSize = CGSize(width: collectionView.frame.height, height: collectionView.frame.height)
-
-        // Начать контекст графики с новыми размерами
         UIGraphicsBeginImageContextWithOptions(newSize, false, 0.0)
-         
-        // Нарисовать новое изображение с измененным разрешением
         image?.draw(in: CGRect(x: 0, y: 0, width: newSize.width, height: newSize.height))
-
-        // Получить изображение из контекста графики
         guard let newImage = UIGraphicsGetImageFromCurrentImageContext() else {return}
-
-
-        // Закрыть контекст графики
         UIGraphicsEndImageContext()
         
-        for i in 0...100{
+        let item = Image(context: context)
+        item.picture = newImage.pngData()
+        item.wasChosen = true
+        item.indexPathRow = Int16(0)
+        
+        let systemImages: [String] = ["mountain.2.circle", "hourglass", "play.rectangle", "circle", "cloud.sun.bolt.circle", "eraser", "tropicalstorm", "airplane", "bicycle", "ferry", "tram", "box.truck", "figure.walk", "bag", "tornado", "compass.drawing", "infinity", "snowflake", "drop", "clock", "creditcard", "carrot", "goforward", "wind", "lamp.desk", "theatermasks.circle", "hammer.circle", "fan.floor", "cloud.sun.bolt.circle", "heart.square.fill", "tree", "globe.central.south.asia", "leaf", "tortoise", "bolt.circle", "gyroscope", "lizard", "flame.circle"]
+        
+        for i in 1..<systemImages.count{
             let image = Image(context: context)
-            image.picture = newImage.pngData()
-            image.wasChosen = true
+            let symbolConfiguration = UIImage.SymbolConfiguration(pointSize: collectionView.frame.height)
+            let systemImage = UIImage(systemName: systemImages[i], withConfiguration: symbolConfiguration)?.withTintColor(.white)
+            image.picture = systemImage?.pngData()
+            image.wasChosen = false
             image.indexPathRow = Int16(i)
         }
+        
 
         do{
             try context.save()

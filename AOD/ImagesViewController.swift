@@ -19,19 +19,19 @@ class ImagesViewController: UICollectionViewController {
     
     // MARK: - Properties
     
-    var allImages: [Image] = []
-    var imagesForRemove: [Image] = []
-    var lastChosenElement: Int!
-    var lastFromAllElements: Int!
-    var isDeleting = false
+    private var allImages: [Image] = []
+    private var imagesForRemove: [Image] = []
+    private var lastChosenElement: Int!
+    private var lastFromAllElements: Int!
+    private var isDeleting = false
 
     var delegate: ImagesViewControllerDelegate!
     var context: NSManagedObjectContext!
     var AODCollectionViewHeight: CGFloat!
 
-    var cancelButtonItem = UIBarButtonItem()
-    var doneButtonItem = UIBarButtonItem()
-    var okButtonItem = UIBarButtonItem()
+    private var cancelButtonItem = UIBarButtonItem()
+    private var doneButtonItem = UIBarButtonItem()
+    private var okButtonItem = UIBarButtonItem()
     // MARK: - Lifecycle
     
     override func viewDidLoad() {
@@ -408,7 +408,6 @@ extension ImagesViewController: PHPickerViewControllerDelegate{
                     }
                     
                     let newSize = CGSize(width: AODCollectionViewHeight, height: AODCollectionViewHeight)
-                    print(newSize)
                     UIGraphicsBeginImageContextWithOptions(newSize, false, 0.0)
                     image.draw(in: CGRect(x: 0, y: 0, width: newSize.width, height: newSize.height))
                     guard let newImage = UIGraphicsGetImageFromCurrentImageContext() else {
