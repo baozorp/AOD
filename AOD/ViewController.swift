@@ -66,7 +66,7 @@ class ViewController: UIViewController{
 
         self.view.addSubview(date)
 
-        clocktimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true, block: {[unowned self] _ in
+        clocktimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true, block: {[unowned self] _ in
             clock.text = clockFormatter.string(from: Date())
             date.text = dateFormatter.string(from: Date())
             guard clock.text! != previousMinute else {return}
