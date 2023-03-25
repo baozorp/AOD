@@ -16,6 +16,13 @@ class ViewController: UIViewController{
     private var collectionView: UICollectionView!
     private var longPressGesture: UILongPressGestureRecognizer!
     
+    private let clock = UILabel()
+    private let date = UILabel()
+    private var previousMinute: String = ""
+    private var moveToTop = true
+    
+    private var clocktimer: Timer?
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -27,11 +34,65 @@ class ViewController: UIViewController{
     private func setupUI() {
         view.backgroundColor = .black
         setupCollectionView()
+        setupClock()
         setupLongPressGesture()
     }
     
+    private func setupClock(){
+
+        let clockFormatter = DateFormatter()
+        clockFormatter.dateFormat = "HH:mm"
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "EEE, d MMM"
+        dateFormatter.locale = Locale(identifier: "ru_RU")
+        
+        let clockHeight = view.frame.height / 10
+        
+        clock.frame = CGRect(x: 0, y: collectionView.frame.midY - collectionView.frame.height * 1.2, width: view.frame.width, height: clockHeight)
+        clock.text = clockFormatter.string(from: Date())
+        clock.textColor = UIColor(red: 229/255.0, green: 229/255.0, blue: 229/255.0, alpha: 1.0)
+        clock.font = UIFont.systemFont(ofSize: clockHeight)
+        clock.textAlignment = .center
+        previousMinute = clock.text ?? ""
+        self.view.addSubview(clock)
+        
+        date.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: clockHeight/3)
+        date.text = dateFormatter.string(from: Date())
+        date.center = CGPoint(x: clock.center.x + 1, y: clock.frame.maxY + date.frame.height/2)
+        date.textColor = UIColor(red: 229/255.0, green: 229/255.0, blue: 229/255.0, alpha: 1.0)
+        date.font = UIFont.systemFont(ofSize: clockHeight/3)
+        date.textAlignment = .center
+
+        self.view.addSubview(date)
+
+        clocktimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true, block: {[unowned self] _ in
+            clock.text = clockFormatter.string(from: Date())
+            date.text = dateFormatter.string(from: Date())
+            guard clock.text! != previousMinute else {return}
+            previousMinute = clock.text ?? ""
+            print(previousMinute)
+            print(clock.text!)
+            if moveToTop, clock.frame.minY > (self.view.frame.minY + self.view.safeAreaInsets.top){
+                clock.center.y -= 10
+                date.center.y -= 10
+                collectionView.center.y -= 10
+            }
+            else if !moveToTop, collectionView.frame.maxY < (self.view.frame.maxY - self.view.safeAreaInsets.bottom - self.view.frame.height / 8){
+                clock.center.y += 10
+                date.center.y += 10
+                collectionView.center.y += 10
+            }
+            else{
+                moveToTop = !moveToTop
+            }
+
+        })
+    }
+    
     private func setupCollectionView(){
-        let collectionViewFrame = CGRect(x: 0, y: self.view.frame.midY - self.view.frame.width/4, width: self.view.frame.width, height: self.view.frame.width/2)
+        let collectionViewY = CGFloat.random(in: (self.view.frame.minY + self.view.frame.width/2)...(self.view.frame.maxY - self.view.safeAreaInsets.bottom - self.view.frame.width))
+        let collectionViewFrame = CGRect(x: 0, y: collectionViewY, width: self.view.frame.width, height: self.view.frame.width/2)
         collectionView = UICollectionView(frame: collectionViewFrame, collectionViewLayout: UICollectionViewFlowLayout())
         self.view.addSubview(collectionView)
         collectionView.dataSource = self

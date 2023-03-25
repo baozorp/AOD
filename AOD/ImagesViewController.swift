@@ -111,6 +111,15 @@ class ImagesViewController: UICollectionViewController {
     }
 }
 
+// MARK: - UICollectionViewDelegateFlowLayout
+
+extension ImagesViewController: UICollectionViewDelegateFlowLayout {
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        return CGSize(width: collectionView.frame.width / 4, height: collectionView.frame.width / 4)
+    }
+}
+
 // Mark: - CoreData
 
 extension ImagesViewController{
@@ -148,7 +157,7 @@ extension ImagesViewController{
 
 extension ImagesViewController{
     
-    @objc func handleLongPress(_ gestureRecognizer: UILongPressGestureRecognizer) {
+    @objc private func handleLongPress(_ gestureRecognizer: UILongPressGestureRecognizer) {
         
         guard !isDeleting else {return}
         if gestureRecognizer.state == .began {
@@ -169,7 +178,7 @@ extension ImagesViewController{
     
     // Cancel button action
     
-    @objc func cancelButtonTapped() {
+    @objc private func cancelButtonTapped() {
         
         self.isDeleting = false
         
@@ -195,7 +204,7 @@ extension ImagesViewController{
     
     // "Ok" button action
     
-    @objc func doneButtonTapped(){
+    @objc private func doneButtonTapped(){
         
         guard let selectedItemsIndexes = collectionView.indexPathsForSelectedItems else {return}
         
@@ -329,7 +338,7 @@ extension ImagesViewController{
     }
 }
 
-// Mark - Configuratiins
+// Mark - Configurations
 
 extension ImagesViewController{
     
@@ -388,11 +397,11 @@ extension ImagesViewController{
     }
 }
 
+// Mark - PHPicker
+
 extension ImagesViewController: PHPickerViewControllerDelegate{
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         let dispatchGroup = DispatchGroup()
-
-        let dispatchSemaphore = DispatchSemaphore(value: 0)
 
         for result in results {
             if result.itemProvider.canLoadObject(ofClass: UIImage.self) {
@@ -406,18 +415,38 @@ extension ImagesViewController: PHPickerViewControllerDelegate{
                         print("Error loading image: \(error?.localizedDescription ?? "Unknown error")")
                         return
                     }
+                    lastChosenElement += 1
+                    lastFromAllElements += 1
+                    // Crop a square in the middle of the image along the shortest side
+                    let imageSize = image.size
+                    let shorterSide = min(imageSize.width, imageSize.height)
+                    let squareSize = CGSize(width: shorterSide, height: shorterSide)
                     
-                    let newSize = CGSize(width: AODCollectionViewHeight, height: AODCollectionViewHeight)
-                    UIGraphicsBeginImageContextWithOptions(newSize, false, 0.0)
-                    image.draw(in: CGRect(x: 0, y: 0, width: newSize.width, height: newSize.height))
+                    UIGraphicsBeginImageContextWithOptions(squareSize, false, 0.0)
+                  
+
+                    let drawRect = CGRect(x: -(imageSize.width - shorterSide) / 2.0,
+                                          y: -(imageSize.height - shorterSide) / 2.0,
+                                          width: imageSize.width,
+                                          height: imageSize.height)
+                    image.draw(in: drawRect)
+                    
+                    guard let squareImage = UIGraphicsGetImageFromCurrentImageContext() else {
+                        UIGraphicsEndImageContext()
+                        return}
+                    UIGraphicsEndImageContext()
+                    
+                    // Reduce the resolution for optimization
+                    let reduseSize = CGSize(width: AODCollectionViewHeight, height: AODCollectionViewHeight)
+                    UIGraphicsBeginImageContextWithOptions(reduseSize, false, 0.0)
+                    squareImage.draw(in: CGRect(x: 0, y: 0, width: reduseSize.width, height: reduseSize.height))
+                    
                     guard let newImage = UIGraphicsGetImageFromCurrentImageContext() else {
                         return
                     }
                     UIGraphicsEndImageContext()
                     
                     let newItem = Image(context: context)
-                    lastChosenElement += 1
-                    lastFromAllElements += 1
                     newItem.picture = newImage.pngData()
                     newItem.wasChosen = true
                     newItem.indexPathRow = Int16(lastChosenElement)
@@ -439,8 +468,6 @@ extension ImagesViewController: PHPickerViewControllerDelegate{
         }
     }
 
-
-    
     @objc func pickImages(_ sender: Any) {
         var configuration = PHPickerConfiguration()
         configuration.filter = .images
@@ -452,11 +479,4 @@ extension ImagesViewController: PHPickerViewControllerDelegate{
     }
 }
 
-// MARK: - UICollectionViewDelegateFlowLayout
 
-extension ImagesViewController: UICollectionViewDelegateFlowLayout {
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: collectionView.frame.width / 4, height: collectionView.frame.width / 4)
-    }
-}
