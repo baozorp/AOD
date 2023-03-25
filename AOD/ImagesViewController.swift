@@ -37,7 +37,6 @@ class ImagesViewController: UICollectionViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         configureNavigationBar()
         configureCollectionView()
         getImagesFromCoreData()
@@ -402,11 +401,21 @@ extension ImagesViewController{
 
 extension ImagesViewController: PHPickerViewControllerDelegate{
     
-    
+    @objc private func pickImages(_ sender: Any) {
+        var configuration = PHPickerConfiguration()
+        configuration.filter = .images
+        configuration.selectionLimit = 0
+        
+        let picker = PHPickerViewController(configuration: configuration)
+        picker.overrideUserInterfaceStyle = .dark
+        
+        picker.delegate = self
+        
+        present(picker, animated: true)
+    }
     
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         let dispatchGroup = DispatchGroup()
-
         for result in results {
             dispatchGroup.enter()
             if result.itemProvider.hasItemConformingToTypeIdentifier(UTType.heic.identifier){
@@ -495,16 +504,4 @@ extension ImagesViewController: PHPickerViewControllerDelegate{
         newItem.indexPathRow = Int16(lastChosenElement)
         allImages.insert(newItem, at: lastChosenElement)
     }
-    
-    @objc private func pickImages(_ sender: Any) {
-        var configuration = PHPickerConfiguration()
-        configuration.filter = .images
-        configuration.selectionLimit = 0 // 0 - выбор неограниченного кол-ва изображений
-        
-        let picker = PHPickerViewController(configuration: configuration)
-        picker.delegate = self
-        present(picker, animated: true)
-    }
 }
-
-
