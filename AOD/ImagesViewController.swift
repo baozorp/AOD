@@ -23,7 +23,6 @@ class ImagesViewController: UICollectionViewController {
     private var allImages: [Image] = []
     private var imagesForRemove: [Image] = []
     private var lastChosenElement: Int!
-    private var lastFromAllElements: Int!
     private var isDeleting = false
 
     var delegate: ImagesViewControllerDelegate!
@@ -136,7 +135,6 @@ extension ImagesViewController{
             lastChosenElement = try context.count(for: fetchRequestChosen) - 1
             let requestAll = try context.fetch(fetchRequestAll)
             if !requestAll.isEmpty{
-                lastFromAllElements = requestAll.count - 1
                 allImages = requestAll.sorted { $0.indexPathRow < $1.indexPathRow }
             }
         }catch let error as NSError {
@@ -164,7 +162,7 @@ extension ImagesViewController{
             let point = gestureRecognizer.location(in: collectionView)
             if collectionView.indexPathForItem(at: point) != nil {
                 isDeleting = true
-                for i in 0...lastFromAllElements{
+                for i in 0...allImages.count-1{
                     guard let cell = collectionView.cellForItem(at: IndexPath(row: i, section: 0)) as? ImageCell else{continue}
                     cell.isDeleting = true
                     cell.shakeCell()
@@ -184,7 +182,7 @@ extension ImagesViewController{
         
         // Denimating shaking, animating checkers and deleters
         
-        for i in 0...lastFromAllElements{
+        for i in 0...allImages.count-1{
             guard let cell = collectionView.cellForItem(at: IndexPath(row: i, section: 0)) as? ImageCell else{continue}
             cell.isDeleting = self.isDeleting
             cell.shakeCell()
@@ -217,14 +215,13 @@ extension ImagesViewController{
                 lastChosenElement -= lastChosenElement == -1 ? 0 : 1
                
             }
-            lastFromAllElements -= 1
             context.delete(i)
         }
         collectionView.deleteItems(at: selectedItemsIndexes)
         
         
         // Denimating shaking, animating checkers and deleters
-        for i in -1...lastFromAllElements{
+        for i in -1...allImages.count{
             guard let cell = collectionView.cellForItem(at: IndexPath(row: i, section: 0)) as? ImageCell else{continue}
             cell.isDeleting = self.isDeleting
             cell.shakeCell()
@@ -234,7 +231,7 @@ extension ImagesViewController{
                 cell.animateDeleter()
             }
         }
-        for i in 0..<lastFromAllElements+1{
+        for i in 0..<allImages.count{
             self.allImages[i].indexPathRow = Int16(i)
         }
 
@@ -433,6 +430,7 @@ extension ImagesViewController: PHPickerViewControllerDelegate{
                             print("Error creating image from data")
                             return
                         }
+                        lastChosenElement += 1
                         imageAdding(image: image)
                     } catch {
                         print("Error loading image: \(error.localizedDescription)")
@@ -449,6 +447,7 @@ extension ImagesViewController: PHPickerViewControllerDelegate{
                         print("Error loading image: \(error?.localizedDescription ?? "Unknown error")")
                         return
                     }
+                    lastChosenElement += 1
                     imageAdding(image: image)
                 }
             } else {
@@ -457,7 +456,7 @@ extension ImagesViewController: PHPickerViewControllerDelegate{
         }
         
         dispatchGroup.notify(queue: DispatchQueue.main) {[unowned self] in
-            for i in 0...lastFromAllElements {
+            for i in 0...allImages.count-1 {
                 allImages[i].indexPathRow = Int16(i)
             }
             saveContext()
@@ -468,8 +467,6 @@ extension ImagesViewController: PHPickerViewControllerDelegate{
     }
 
     private func imageAdding(image: UIImage){
-        lastChosenElement += 1
-        lastFromAllElements += 1
         // Crop a square in the middle of the image along the shortest side
         let imageSize = image.size
         let shorterSide = min(imageSize.width, imageSize.height)
