@@ -39,7 +39,9 @@ class ImagesViewController: UICollectionViewController {
         configureNavigationBar()
         configureCollectionView()
         getImagesFromCoreData()
+
     }
+    
     
     
     // MARK: - UICollectionViewDataSource

@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//  AODViewController.swift
 //  AOD
 //
 //  Created by Михаил Шекунов on 15.03.2023.
@@ -8,7 +8,7 @@
 import UIKit
 import CoreData
 
-class ViewController: UIViewController{
+class AODViewController: UIViewController{
     
     private var numberOfImages = 0
     private var context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
@@ -38,6 +38,10 @@ class ViewController: UIViewController{
         clocktimer = nil
     }
     
+    override var prefersStatusBarHidden: Bool {
+        return true
+    }
+    
     private func setupUI() {
         view.backgroundColor = .black
         setupCollectionView()
@@ -60,7 +64,7 @@ class ViewController: UIViewController{
         clock.text = clockFormatter.string(from: Date())
         clock.textColor = UIColor(red: 229/255.0, green: 229/255.0, blue: 229/255.0, alpha: 1.0)
         clock.font = UIFont.systemFont(ofSize: clockHeight)
-        clock.textAlignment = .center
+        clock.textAlignment = NSTextAlignment.center
         previousMinute = clock.text ?? ""
         self.view.addSubview(clock)
         
@@ -149,7 +153,7 @@ class ViewController: UIViewController{
 
 // MARK: - UICollectionViewDataSource
 
-extension ViewController: UICollectionViewDataSource{
+extension AODViewController: UICollectionViewDataSource{
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return numberOfImages == 0 ? 1: numberOfImages
     }
@@ -178,10 +182,8 @@ extension ViewController: UICollectionViewDataSource{
                     cell.pictureView.layer.cornerRadius = 50
                     cell.pictureView.image = UIImage(data: (fetchedImages!.picture)!)
                 }
-                            
             }
         }
-
         return cell
     }
 
@@ -189,7 +191,7 @@ extension ViewController: UICollectionViewDataSource{
 
 // MARK: - UICollectionViewDelegate
 
-extension ViewController: UICollectionViewDelegate{
+extension AODViewController: UICollectionViewDelegate{
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
         return UIEdgeInsets(top: 0, left: collectionView.frame.width / 4, bottom: 0, right: collectionView.frame.width / 4)
     }
@@ -211,7 +213,7 @@ extension ViewController: UICollectionViewDelegate{
     }
 }
 
-extension ViewController: UICollectionViewDelegateFlowLayout{
+extension AODViewController: UICollectionViewDelegateFlowLayout{
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: collectionView.frame.height, height: collectionView.frame.height)
@@ -221,7 +223,7 @@ extension ViewController: UICollectionViewDelegateFlowLayout{
 
 // Mark - Delegate for ImagesViewController which reload Data
 
-extension ViewController: ImagesViewControllerDelegate{
+extension AODViewController: ImagesViewControllerDelegate{
     
     func didSavedContext() {
         loadImagesFromCoreData()
@@ -229,7 +231,7 @@ extension ViewController: ImagesViewControllerDelegate{
     }
 }
 
-extension ViewController{
+extension AODViewController{
     
     private func firstStartChecker(){
 
@@ -242,29 +244,21 @@ extension ViewController{
             print(error.localizedDescription)
         }
         _ = FirstStart(context: context)
-        let image = UIImage(named: "cosmo")
-        let newSize = CGSize(width: collectionView.frame.height, height: collectionView.frame.height)
-        UIGraphicsBeginImageContextWithOptions(newSize, false, 0.0)
-        image?.draw(in: CGRect(x: 0, y: 0, width: newSize.width, height: newSize.height))
-        guard let newImage = UIGraphicsGetImageFromCurrentImageContext() else {return}
-        UIGraphicsEndImageContext()
         
-        let item = Image(context: context)
-        item.picture = newImage.pngData()
-        item.wasChosen = true
-        item.indexPathRow = Int16(0)
-        
-        let systemImages: [String] = ["mountain.2.circle", "hourglass", "play.rectangle", "circle", "cloud.sun.bolt.circle", "eraser", "tropicalstorm", "airplane", "bicycle", "ferry", "tram", "box.truck", "figure.walk", "bag", "tornado", "compass.drawing", "infinity", "snowflake", "drop", "clock", "creditcard", "carrot", "goforward", "wind", "lamp.desk", "theatermasks.circle", "hammer.circle", "fan.floor", "cloud.sun.bolt.circle", "heart.square.fill", "tree", "globe.central.south.asia", "leaf", "tortoise", "bolt.circle", "gyroscope", "lizard", "flame.circle"]
-        
-        for i in 1..<systemImages.count{
-            let image = Image(context: context)
-            let symbolConfiguration = UIImage.SymbolConfiguration(pointSize: collectionView.frame.height)
-            let systemImage = UIImage(systemName: systemImages[i], withConfiguration: symbolConfiguration)?.withTintColor(.white)
-            image.picture = systemImage?.pngData()
-            image.wasChosen = false
-            image.indexPathRow = Int16(i)
+        let startPictures = ["cosmo", "journalist", "cowboy"]
+        for i in 0...(startPictures.count-1){
+            let image = UIImage(named: startPictures[i])
+            let newSize = CGSize(width: collectionView.frame.height, height: collectionView.frame.height)
+            UIGraphicsBeginImageContextWithOptions(newSize, false, 0.0)
+            image?.draw(in: CGRect(x: 0, y: 0, width: newSize.width, height: newSize.height))
+            guard let newImage = UIGraphicsGetImageFromCurrentImageContext() else {return}
+            UIGraphicsEndImageContext()
+            let item = Image(context: context)
+            item.picture = newImage.pngData()
+            item.wasChosen = true
+            item.indexPathRow = Int16(i)
         }
-    
+
         do{
             try context.save()
         }catch let error as NSError{

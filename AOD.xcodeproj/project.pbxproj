@@ -11,7 +11,7 @@
 		B4A93A1B29C2084600B334F1 /* ImagesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4A93A1A29C2084600B334F1 /* ImagesViewController.swift */; };
 		B4DEF94729C128B600E3C172 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4DEF94629C128B600E3C172 /* AppDelegate.swift */; };
 		B4DEF94929C128B600E3C172 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4DEF94829C128B600E3C172 /* SceneDelegate.swift */; };
-		B4DEF94B29C128B600E3C172 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4DEF94A29C128B600E3C172 /* ViewController.swift */; };
+		B4DEF94B29C128B600E3C172 /* AODViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4DEF94A29C128B600E3C172 /* AODViewController.swift */; };
 		B4DEF95129C128B600E3C172 /* AOD.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = B4DEF94F29C128B600E3C172 /* AOD.xcdatamodeld */; };
 		B4DEF95329C128B700E3C172 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B4DEF95229C128B700E3C172 /* Assets.xcassets */; };
 		B4DEF95629C128B700E3C172 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B4DEF95429C128B700E3C172 /* LaunchScreen.storyboard */; };
@@ -24,7 +24,7 @@
 		B4DEF94329C128B600E3C172 /* AOD.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AOD.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B4DEF94629C128B600E3C172 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B4DEF94829C128B600E3C172 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
-		B4DEF94A29C128B600E3C172 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		B4DEF94A29C128B600E3C172 /* AODViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AODViewController.swift; sourceTree = "<group>"; };
 		B4DEF95029C128B600E3C172 /* AOD.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = AOD.xcdatamodel; sourceTree = "<group>"; };
 		B4DEF95229C128B700E3C172 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B4DEF95529C128B700E3C172 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -65,7 +65,7 @@
 				B4DEF95D29C1296900E3C172 /* ImageCell.swift */,
 				B4DEF94629C128B600E3C172 /* AppDelegate.swift */,
 				B4DEF94829C128B600E3C172 /* SceneDelegate.swift */,
-				B4DEF94A29C128B600E3C172 /* ViewController.swift */,
+				B4DEF94A29C128B600E3C172 /* AODViewController.swift */,
 				B4A93A1A29C2084600B334F1 /* ImagesViewController.swift */,
 				B46076E529CDA42B00AC7E0D /* File.swift */,
 				B4DEF95229C128B700E3C172 /* Assets.xcassets */,
@@ -149,7 +149,7 @@
 				B4A93A1B29C2084600B334F1 /* ImagesViewController.swift in Sources */,
 				B4DEF95129C128B600E3C172 /* AOD.xcdatamodeld in Sources */,
 				B46076E629CDA42B00AC7E0D /* File.swift in Sources */,
-				B4DEF94B29C128B600E3C172 /* ViewController.swift in Sources */,
+				B4DEF94B29C128B600E3C172 /* AODViewController.swift in Sources */,
 				B4DEF94729C128B600E3C172 /* AppDelegate.swift in Sources */,
 				B4DEF94929C128B600E3C172 /* SceneDelegate.swift in Sources */,
 				B4DEF95E29C1296900E3C172 /* ImageCell.swift in Sources */,
@@ -294,11 +294,12 @@
 				DEVELOPMENT_TEAM = 8ZZ48UWX6P;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = AOD/Info.plist;
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Разрешите доступ к фото, чтобы добавлять свои собственные изображения";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen.storyboard;
 				INFOPLIST_KEY_UIMainStoryboardFile = "";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -307,9 +308,12 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = baozorp.AOD;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -323,11 +327,12 @@
 				DEVELOPMENT_TEAM = 8ZZ48UWX6P;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = AOD/Info.plist;
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Разрешите доступ к фото, чтобы добавлять свои собственные изображения";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen.storyboard;
 				INFOPLIST_KEY_UIMainStoryboardFile = "";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -336,9 +341,12 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = baozorp.AOD;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};

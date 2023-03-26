@@ -1,0 +1,21 @@
+{
+  "images" : [
+    {
+      "filename" : "baozorp_cute_cartoon_cowboy_night_bonfire_moutains_on_backgroun_6e4b9d5b-4fdf-4135-82d6-34eee7802c6f.png",
+      "idiom" : "universal",
+      "scale" : "1x"
+    },
+    {
+      "idiom" : "universal",
+      "scale" : "2x"
+    },
+    {
+      "idiom" : "universal",
+      "scale" : "3x"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}
