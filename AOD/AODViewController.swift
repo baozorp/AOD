@@ -83,14 +83,14 @@ class AODViewController: UIViewController{
             guard clock.text! != previousMinute else {return}
             previousMinute = clock.text ?? ""
             if moveToTop, clock.frame.minY > (self.view.frame.minY + self.view.safeAreaInsets.top){
-                clock.center.y -= 10
-                date.center.y -= 10
-                collectionView.center.y -= 10
+                clock.center.y -= 5
+                date.center.y -= 5
+                collectionView.center.y -= 5
             }
             else if !moveToTop, collectionView.frame.maxY < (self.view.frame.maxY - self.view.safeAreaInsets.bottom - self.view.frame.height / 8){
-                clock.center.y += 10
-                date.center.y += 10
-                collectionView.center.y += 10
+                clock.center.y += 5
+                date.center.y += 5
+                collectionView.center.y += 5
             }
             else{
                 moveToTop = !moveToTop
