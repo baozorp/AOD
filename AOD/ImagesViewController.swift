@@ -12,10 +12,6 @@ import UniformTypeIdentifiers
 
 private let reuseIdentifier = "Cell"
 
-protocol ImagesViewControllerDelegate {
-    func didSavedContext()
-}
-
 class ImagesViewController: UICollectionViewController {
     
     // MARK: - Properties
@@ -25,7 +21,6 @@ class ImagesViewController: UICollectionViewController {
     private var lastChosenElement: Int!
     private var isDeleting = false
 
-    var delegate: ImagesViewControllerDelegate!
     var context: NSManagedObjectContext!
     var AODCollectionViewHeight: CGFloat!
 
@@ -238,7 +233,6 @@ extension ImagesViewController{
         }
 
         self.saveContext()
-        delegate.didSavedContext()
         reverseVisibleNavButtons()
     }
     
@@ -265,7 +259,6 @@ extension ImagesViewController{
             self.allImages[i].indexPathRow = Int16(i)
         }
         self.saveContext()
-        self.delegate.didSavedContext()
             
         self.collectionView.moveItem(at: indexPath, to: [indexPath.startIndex, selectToRow])
         self.collectionView.reloadData()
@@ -462,10 +455,8 @@ extension ImagesViewController: PHPickerViewControllerDelegate{
                 allImages[i].indexPathRow = Int16(i)
             }
             saveContext()
-            delegate.didSavedContext()
-            collectionView.reloadData()
-            dismiss(animated: true, completion: nil)
         }
+        dismiss(animated: true, completion: nil)
     }
 
     private func imageAdding(image: UIImage){
@@ -502,5 +493,9 @@ extension ImagesViewController: PHPickerViewControllerDelegate{
         newItem.wasChosen = true
         newItem.indexPathRow = Int16(lastChosenElement)
         allImages.insert(newItem, at: lastChosenElement)
+        DispatchQueue.main.async {
+            self.collectionView.insertItems(at: [IndexPath(row: self.lastChosenElement, section: 0)])
+        }
+        
     }
 }

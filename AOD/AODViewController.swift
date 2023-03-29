@@ -16,6 +16,8 @@ class AODViewController: UIViewController{
     private var collectionView: UICollectionView!
     private var longPressGesture: UILongPressGestureRecognizer!
     
+    var fetchedResultsController: NSFetchedResultsController<Image>!
+    
     private let clock = UILabel()
     private let date = UILabel()
     private var previousMinute: String = ""
@@ -29,6 +31,22 @@ class AODViewController: UIViewController{
         setupUI()
         firstStartChecker()
         loadImagesFromCoreData()
+        createNSFetchRequestResultsController()
+    }
+    
+    func createNSFetchRequestResultsController(){
+
+        let request: NSFetchRequest<Image> = Image.fetchRequest()
+        let sortDescriptor = NSSortDescriptor(key: "wasChosen", ascending: true)
+        request.sortDescriptors = [sortDescriptor]
+        fetchedResultsController = NSFetchedResultsController(fetchRequest: request, managedObjectContext: context, sectionNameKeyPath: nil, cacheName: nil)
+        fetchedResultsController.delegate = self
+        
+        do {
+          try fetchedResultsController.performFetch()
+        } catch {
+          print("Error fetching data: \(error)")
+        }
     }
     
     // Timer stop
@@ -130,7 +148,6 @@ class AODViewController: UIViewController{
                 let layout = UICollectionViewFlowLayout()
                 let imagesVC = ImagesViewController(collectionViewLayout: layout)
                 imagesNC.pushViewController(imagesVC, animated: true)
-                imagesVC.delegate = self
                 imagesVC.context = context
                 imagesVC.AODCollectionViewHeight = collectionView.frame.height
                 present(imagesNC, animated: true)
@@ -223,13 +240,16 @@ extension AODViewController: UICollectionViewDelegateFlowLayout{
 
 // Mark - Delegate for ImagesViewController which reload Data
 
-extension AODViewController: ImagesViewControllerDelegate{
-    
-    func didSavedContext() {
+
+extension AODViewController: NSFetchedResultsControllerDelegate{
+    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         loadImagesFromCoreData()
         collectionView.reloadData()
     }
 }
+
+
+// Mark - First start checker
 
 extension AODViewController{
     
