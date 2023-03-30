@@ -185,8 +185,8 @@ extension AODViewController: UICollectionViewDataSource{
         }
         else{
             // Подгружаем данные из СoreData
-            let operationQueue = OperationQueue()
-            operationQueue.addOperation {
+            let operationQueue = DispatchQueue(label: "AODUpdater")
+            operationQueue.async {
                 let fetchRequest = Image.fetchRequest()
                 fetchRequest.predicate = NSPredicate(format: "indexPathRow == %@", argumentArray: [Int16(indexPath.row)])
                 var fetchedImages: Image?
@@ -195,9 +195,10 @@ extension AODViewController: UICollectionViewDataSource{
                 } catch let error as NSError {
                     print(error.localizedDescription)
                 }
-                OperationQueue.main.addOperation {
+                DispatchQueue.main.async {
+                    guard let picture = fetchedImages!.picture else {return}
                     cell.pictureView.layer.cornerRadius = 50
-                    cell.pictureView.image = UIImage(data: (fetchedImages!.picture)!)
+                    cell.pictureView.image = UIImage(data: (picture))
                 }
             }
         }

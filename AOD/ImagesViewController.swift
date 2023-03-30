@@ -425,7 +425,6 @@ extension ImagesViewController: PHPickerViewControllerDelegate{
                             print("Error creating image from data")
                             return
                         }
-                        lastChosenElement += 1
                         imageAdding(image: image)
                     } catch {
                         print("Error loading image: \(error.localizedDescription)")
@@ -442,7 +441,6 @@ extension ImagesViewController: PHPickerViewControllerDelegate{
                         print("Error loading image: \(error?.localizedDescription ?? "Unknown error")")
                         return
                     }
-                    lastChosenElement += 1
                     imageAdding(image: image)
                 }
             } else {
@@ -460,6 +458,7 @@ extension ImagesViewController: PHPickerViewControllerDelegate{
     }
 
     private func imageAdding(image: UIImage){
+        let elementRow = lastChosenElement!
         // Crop a square in the middle of the image along the shortest side
         let imageSize = image.size
         let shorterSide = min(imageSize.width, imageSize.height)
@@ -491,10 +490,11 @@ extension ImagesViewController: PHPickerViewControllerDelegate{
         let newItem = Image(context: context)
         newItem.picture = newImage.pngData()
         newItem.wasChosen = true
+        lastChosenElement += 1
         newItem.indexPathRow = Int16(lastChosenElement)
         allImages.insert(newItem, at: lastChosenElement)
-        DispatchQueue.main.async {
-            self.collectionView.insertItems(at: [IndexPath(row: self.lastChosenElement, section: 0)])
+        DispatchQueue.main.async {[unowned self] in
+            self.collectionView.insertItems(at: [IndexPath(row: lastChosenElement, section: 0)])
         }
         
     }
