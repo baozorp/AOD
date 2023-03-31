@@ -23,6 +23,10 @@ class AODViewController: UIViewController{
     private var previousMinute: String = ""
     private var moveToTop = true
     
+    override var prefersHomeIndicatorAutoHidden: Bool {
+        return true
+    }
+    
     private var clocktimer: Timer?
 
     
@@ -33,21 +37,7 @@ class AODViewController: UIViewController{
         loadImagesFromCoreData()
         createNSFetchRequestResultsController()
     }
-    
-    func createNSFetchRequestResultsController(){
 
-        let request: NSFetchRequest<Image> = Image.fetchRequest()
-        let sortDescriptor = NSSortDescriptor(key: "wasChosen", ascending: true)
-        request.sortDescriptors = [sortDescriptor]
-        fetchedResultsController = NSFetchedResultsController(fetchRequest: request, managedObjectContext: context, sectionNameKeyPath: nil, cacheName: nil)
-        fetchedResultsController.delegate = self
-        
-        do {
-          try fetchedResultsController.performFetch()
-        } catch {
-          print("Error fetching data: \(error)")
-        }
-    }
     
     // Timer stop
     override func viewWillDisappear(_ animated: Bool) {
@@ -137,6 +127,21 @@ class AODViewController: UIViewController{
         longPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
         longPressGesture.minimumPressDuration = 1
         collectionView.addGestureRecognizer(longPressGesture)
+    }
+    
+    func createNSFetchRequestResultsController(){
+
+        let request: NSFetchRequest<Image> = Image.fetchRequest()
+        let sortDescriptor = NSSortDescriptor(key: "wasChosen", ascending: true)
+        request.sortDescriptors = [sortDescriptor]
+        fetchedResultsController = NSFetchedResultsController(fetchRequest: request, managedObjectContext: context, sectionNameKeyPath: nil, cacheName: nil)
+        fetchedResultsController.delegate = self
+        
+        do {
+          try fetchedResultsController.performFetch()
+        } catch {
+          print("Error fetching data: \(error)")
+        }
     }
     
     // MARK: - Long Press Gesture Handling
