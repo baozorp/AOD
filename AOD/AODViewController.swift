@@ -61,6 +61,8 @@ class AODViewController: UIViewController{
     }
     
     private func setupUI() {
+        
+        UIApplication.shared.isIdleTimerDisabled = true
         view.backgroundColor = .black
         setupCollectionView()
         setupClock()
@@ -143,6 +145,7 @@ class AODViewController: UIViewController{
         if gestureRecognizer.state == .began {
             let point = gestureRecognizer.location(in: collectionView)
             if collectionView.indexPathForItem(at: point) != nil {
+                
                 let feedback = UIImpactFeedbackGenerator(style: .medium)
                 feedback.prepare()
                 feedback.impactOccurred()
@@ -154,6 +157,8 @@ class AODViewController: UIViewController{
                 imagesVC.context = context
                 imagesVC.AODCollectionViewHeight = collectionView.frame.height
 
+                UIApplication.shared.isIdleTimerDisabled = false
+                
                 present(imagesNC, animated: true)
             }
         }
