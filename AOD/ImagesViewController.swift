@@ -37,8 +37,6 @@ class ImagesViewController: UICollectionViewController {
 
     }
     
-    
-    
     // MARK: - UICollectionViewDataSource
     
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
@@ -61,6 +59,7 @@ class ImagesViewController: UICollectionViewController {
             OperationQueue.main.addOperation { [self] in
                 cell.animateChecker(isWasSelected: true)
                 cell.pictureView.layer.cornerRadius = 25
+
                 if let picture = AODImage.picture{
                     cell.pictureView.image = UIImage(data: picture)
                 }
@@ -87,6 +86,9 @@ class ImagesViewController: UICollectionViewController {
         }
         else{
             guard let cell = self.collectionView.cellForItem(at: indexPath) as? ImageCell else { return }
+            let feedback = UIImpactFeedbackGenerator(style: .rigid)
+            feedback.prepare()
+            feedback.impactOccurred()
             cell.animateDeleter()
             guard let image = cell.image else {return}
             imagesForRemove.append(image)
@@ -99,6 +101,7 @@ class ImagesViewController: UICollectionViewController {
         }
         else{
             guard let cell = self.collectionView.cellForItem(at: indexPath) as? ImageCell else { return }
+            UISelectionFeedbackGenerator().selectionChanged()
             cell.animateDeleter()
             guard let image = cell.image else {return}
             guard let index = imagesForRemove.firstIndex(of: image) else{return}
@@ -175,6 +178,10 @@ extension ImagesViewController{
     
     @objc private func cancelButtonTapped() {
         
+        let feedback = UIImpactFeedbackGenerator(style: .light)
+        feedback.prepare()
+        feedback.impactOccurred()
+        
         self.isDeleting = false
         
         // Denimating shaking, animating checkers and deleters
@@ -202,6 +209,10 @@ extension ImagesViewController{
     @objc private func doneButtonTapped(){
         
         guard let selectedItemsIndexes = collectionView.indexPathsForSelectedItems else {return}
+        
+        let feedback = UIImpactFeedbackGenerator(style: .light)
+        feedback.prepare()
+        feedback.impactOccurred()
         
         self.isDeleting = false
         
@@ -238,6 +249,7 @@ extension ImagesViewController{
     
     
     private func choseElementToDisplay(indexPath: IndexPath){
+        UISelectionFeedbackGenerator().selectionChanged()
         guard let cell = self.collectionView.cellForItem(at: indexPath) as? ImageCell else { return }
         guard let image = cell.image else { return }
         cell.isSelected = false
@@ -394,6 +406,11 @@ extension ImagesViewController{
 extension ImagesViewController: PHPickerViewControllerDelegate{
     
     @objc private func pickImages(_ sender: Any) {
+        
+        let feedback = UIImpactFeedbackGenerator(style: .medium)
+        feedback.prepare()
+        feedback.impactOccurred()
+        
         var configuration = PHPickerConfiguration()
         configuration.filter = .images
         configuration.selectionLimit = 0
@@ -458,30 +475,15 @@ extension ImagesViewController: PHPickerViewControllerDelegate{
     }
 
     private func imageAdding(image: UIImage){
-        let elementRow = lastChosenElement!
+        
         // Crop a square in the middle of the image along the shortest side
         let imageSize = image.size
-        let shorterSide = min(imageSize.width, imageSize.height)
-        let squareSize = CGSize(width: shorterSide, height: shorterSide)
-        
-        UIGraphicsBeginImageContextWithOptions(squareSize, false, 0.0)
-      
+        let longerSide = min(imageSize.width, imageSize.height)
+        let coefficient = AODCollectionViewHeight / longerSide
+        let reduseSize = CGSize(width: imageSize.width * coefficient, height: imageSize.height * coefficient)
 
-        let drawRect = CGRect(x: -(imageSize.width - shorterSide) / 2.0,
-                              y: -(imageSize.height - shorterSide) / 2.0,
-                              width: imageSize.width,
-                              height: imageSize.height)
-        image.draw(in: drawRect)
-        
-        guard let squareImage = UIGraphicsGetImageFromCurrentImageContext() else {
-            UIGraphicsEndImageContext()
-            return}
-        UIGraphicsEndImageContext()
-        
-        // Reduce the resolution for optimization
-        let reduseSize = CGSize(width: AODCollectionViewHeight, height: AODCollectionViewHeight)
         UIGraphicsBeginImageContextWithOptions(reduseSize, false, 0.0)
-        squareImage.draw(in: CGRect(x: 0, y: 0, width: reduseSize.width, height: reduseSize.height))
+        image.draw(in: CGRect(x: 0, y: 0, width: reduseSize.width, height: reduseSize.height))
         
         guard let newImage = UIGraphicsGetImageFromCurrentImageContext() else {
             return
@@ -493,8 +495,8 @@ extension ImagesViewController: PHPickerViewControllerDelegate{
         lastChosenElement += 1
         newItem.indexPathRow = Int16(lastChosenElement)
         allImages.insert(newItem, at: lastChosenElement)
-        DispatchQueue.main.async {[unowned self] in
-            self.collectionView.insertItems(at: [IndexPath(row: lastChosenElement, section: 0)])
+        DispatchQueue.main.async {
+            self.collectionView.insertItems(at: [IndexPath(row: self.lastChosenElement, section: 0)])
         }
         
     }

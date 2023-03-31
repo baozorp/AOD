@@ -113,7 +113,6 @@ class AODViewController: UIViewController{
             else{
                 moveToTop = !moveToTop
             }
-
         })
     }
     
@@ -144,12 +143,17 @@ class AODViewController: UIViewController{
         if gestureRecognizer.state == .began {
             let point = gestureRecognizer.location(in: collectionView)
             if collectionView.indexPathForItem(at: point) != nil {
+                let feedback = UIImpactFeedbackGenerator(style: .medium)
+                feedback.prepare()
+                feedback.impactOccurred()
+                
                 let imagesNC = UINavigationController()
                 let layout = UICollectionViewFlowLayout()
                 let imagesVC = ImagesViewController(collectionViewLayout: layout)
                 imagesNC.pushViewController(imagesVC, animated: true)
                 imagesVC.context = context
                 imagesVC.AODCollectionViewHeight = collectionView.frame.height
+
                 present(imagesNC, animated: true)
             }
         }
