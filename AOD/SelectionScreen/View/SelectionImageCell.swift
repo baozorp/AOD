@@ -59,7 +59,7 @@ class SelectionImageCell: UICollectionViewCell {
     
     func animateChecker(isWasSelected: Bool){
         guard let image = image else {return}
-        let checkAppearenceAnimation = UIViewPropertyAnimator(duration: 0.05, curve: .easeOut)
+        let checkAppearenceAnimation = UIViewPropertyAnimator(duration: 0.1, curve: .easeOut)
         if self.isDeleting && image.wasChosen && isWasSelected{
             self.checkStatus.transform = CGAffineTransform(scaleX: 1.0, y: 1.0)
             checkAppearenceAnimation.addAnimations {
@@ -92,6 +92,7 @@ class SelectionImageCell: UICollectionViewCell {
     override func layoutSubviews() {
         super.layoutSubviews()
         shakeCell()
+        animateChecker(isWasSelected: false)
     }
 
     func shakeCell() {

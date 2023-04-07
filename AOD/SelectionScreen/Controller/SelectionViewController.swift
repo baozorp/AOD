@@ -60,14 +60,13 @@ class SelectionViewController: UICollectionViewController {
         operationQueue.addOperation {
             let AODImage = self.allImages[indexPath.row]
             cell.image = AODImage
-            OperationQueue.main.addOperation { [self] in
-                cell.animateChecker(isWasSelected: true)
+            OperationQueue.main.addOperation {
                 cell.pictureView.layer.cornerRadius = 25
 
                 if let image = AODImage.image{
                     cell.pictureView.image = UIImage(data: image)
                 }
-                if imagesForRemove.contains(cell.image!){
+                if self.imagesForRemove.contains(cell.image!){
                     cell.animateDeleter()
                 }
                 else{
@@ -444,8 +443,8 @@ extension SelectionViewController: PHPickerViewControllerDelegate, SelectionView
             allImages.insert(item, at: lastChosenElement)
             saveContext()
             indexPathes.append(IndexPath(row: lastChosenElement, section: 0))
-            
         }
+        
         collectionView.insertItems(at: indexPathes)
     }
 }
