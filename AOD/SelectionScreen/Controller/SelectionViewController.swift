@@ -19,10 +19,10 @@ class SelectionViewController: UICollectionViewController {
     private var imagesForRemove: [Item] = []
     private var lastChosenElement: Int!
     private var isDeleting = false
-
+    
     var context: NSManagedObjectContext!
-    var AODCollectionViewHeight: CGFloat!
-
+    var AODCollectionViewHeight: CGFloat = 0.0
+    
     private var cancelButtonItem = UIBarButtonItem()
     private var doneButtonItem = UIBarButtonItem()
     private var okButtonItem = UIBarButtonItem()
@@ -33,7 +33,7 @@ class SelectionViewController: UICollectionViewController {
         configureNavigationBar()
         configureCollectionView()
         getImagesFromCoreData()
-
+        
     }
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -176,7 +176,6 @@ extension SelectionViewController{
             }
         }
     }
-    
     
     // Cancel button action
     
@@ -407,7 +406,7 @@ extension SelectionViewController{
 
 // Mark - PHPicker
 
-extension SelectionViewController: PHPickerViewControllerDelegate{
+extension SelectionViewController: PHPickerViewControllerDelegate, SelectionViewControllerDelegate{
     
     @objc private func pickImages(_ sender: Any) {
         
@@ -417,7 +416,8 @@ extension SelectionViewController: PHPickerViewControllerDelegate{
         
         var configuration = PHPickerConfiguration()
         configuration.filter = .images
-        configuration.selectionLimit = 0
+        configuration.selectionLimit = 10
+        
         
         let picker = PHPickerViewController(configuration: configuration)
         picker.overrideUserInterfaceStyle = .dark
@@ -428,80 +428,24 @@ extension SelectionViewController: PHPickerViewControllerDelegate{
     }
     
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
-        let dispatchGroup = DispatchGroup()
-        for result in results {
-            dispatchGroup.enter()
-            if result.itemProvider.hasItemConformingToTypeIdentifier(UTType.heic.identifier){
-                result.itemProvider.loadFileRepresentation(forTypeIdentifier: UTType.heic.identifier) {[unowned self] url, error in
-                    defer {
-                        dispatchGroup.leave()
-                    }
-                    guard let url = url else {
-                        print("Error loading image: \(error?.localizedDescription ?? "Unknown error")")
-                        return
-                    }
-                    do {
-                        let data = try Data(contentsOf: url)
-                        guard let image = UIImage(data: data) else {
-                            print("Error creating image from data")
-                            return
-                        }
-                        imageAdding(image: image)
-                    } catch {
-                        print("Error loading image: \(error.localizedDescription)")
-                    }
-                    
-                }
-            }
-            else if result.itemProvider.canLoadObject(ofClass: UIImage.self){
-                result.itemProvider.loadObject(ofClass: UIImage.self) { [unowned self] image, error in
-                    defer {
-                        dispatchGroup.leave()
-                    }
-                    guard let image = image as? UIImage else {
-                        print("Error loading image: \(error?.localizedDescription ?? "Unknown error")")
-                        return
-                    }
-                    imageAdding(image: image)
-                }
-            } else {
-                print("Unsupported item provider")
-            }
-        }
-        
-        dispatchGroup.notify(queue: DispatchQueue.main) {[unowned self] in
-            for i in 0...allImages.count-1 {
-                allImages[i].indexPathRow = Int16(i)
-            }
-            saveContext()
-        }
+        let phPicker = PHPicker(self)
+        phPicker.getImage(results, AODCollectionViewHeight)
         dismiss(animated: true, completion: nil)
     }
 
-    private func imageAdding(image: UIImage){
-        
-        // Crop a square in the middle of the image along the shortest side
-        let imageSize = image.size
-        let longerSide = min(imageSize.width, imageSize.height)
-        let coefficient = AODCollectionViewHeight / longerSide
-        let reduseSize = CGSize(width: imageSize.width * coefficient, height: imageSize.height * coefficient)
-
-        UIGraphicsBeginImageContextWithOptions(reduseSize, false, 0.0)
-        image.draw(in: CGRect(x: 0, y: 0, width: reduseSize.width, height: reduseSize.height))
-        
-        guard let newImage = UIGraphicsGetImageFromCurrentImageContext() else {
-            return
+    func imagesWasLoaded(_ newItemsArray: [UIImage]) {
+        var indexPathes = [IndexPath]()
+        for newItem in newItemsArray{
+            lastChosenElement += 1
+            let item = Item(context: context)
+            item.image = newItem.pngData()
+            item.wasChosen = true
+            item.indexPathRow = Int16(lastChosenElement)
+            allImages.insert(item, at: lastChosenElement)
+            saveContext()
+            indexPathes.append(IndexPath(row: lastChosenElement, section: 0))
+            
         }
-        UIGraphicsEndImageContext()
-        let newItem = Item(context: context)
-        newItem.image = newImage.pngData()
-        newItem.wasChosen = true
-        lastChosenElement += 1
-        newItem.indexPathRow = Int16(lastChosenElement)
-        allImages.insert(newItem, at: lastChosenElement)
-        DispatchQueue.main.async {
-            self.collectionView.insertItems(at: [IndexPath(row: self.lastChosenElement, section: 0)])
-        }
-        
+        collectionView.insertItems(at: indexPathes)
     }
 }
