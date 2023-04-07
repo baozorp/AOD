@@ -97,7 +97,6 @@
 		B45666CF29E0701100A7CFEB /* MainScreen */ = {
 			isa = PBXGroup;
 			children = (
-				B45666CE29E06FA500A7CFEB /* CoreData */,
 				B45666D229E0703500A7CFEB /* Model */,
 				B45666D129E0703000A7CFEB /* View */,
 				B45666D029E0702400A7CFEB /* Controller */,
@@ -190,6 +189,7 @@
 			children = (
 				B45666DA29E0750B00A7CFEB /* SelectionScreen */,
 				B45666CF29E0701100A7CFEB /* MainScreen */,
+				B45666CE29E06FA500A7CFEB /* CoreData */,
 				B45666CA29E06F4B00A7CFEB /* Application */,
 				B45666C929E06F0C00A7CFEB /* Supporting files */,
 			);
