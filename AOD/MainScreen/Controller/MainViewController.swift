@@ -8,7 +8,7 @@
 import UIKit
 import CoreData
 
-class AODViewController: UIViewController{
+class MainViewController: UIViewController{
     
     private var numberOfImages = 0
     private var context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
@@ -16,7 +16,7 @@ class AODViewController: UIViewController{
     private var collectionView: UICollectionView!
     private var longPressGesture: UILongPressGestureRecognizer!
     
-    var fetchedResultsController: NSFetchedResultsController<Image>!
+    var fetchedResultsController: NSFetchedResultsController<Item>!
     
     private let clock = UILabel()
     private let date = UILabel()
@@ -117,7 +117,7 @@ class AODViewController: UIViewController{
         collectionView.delegate = self
         collectionView.backgroundColor = .black
         collectionView.showsHorizontalScrollIndicator = false
-        collectionView.register(ImageCell.self, forCellWithReuseIdentifier: "imageCell")
+        collectionView.register(MainImageCell.self, forCellWithReuseIdentifier: "mainImageCell")
         guard let flowLayout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout else {return}
         flowLayout.minimumLineSpacing = collectionView.frame.width / 4
         flowLayout.scrollDirection = .horizontal
@@ -131,7 +131,7 @@ class AODViewController: UIViewController{
     
     func createNSFetchRequestResultsController(){
 
-        let request: NSFetchRequest<Image> = Image.fetchRequest()
+        let request: NSFetchRequest<Item> = Item.fetchRequest()
         let sortDescriptor = NSSortDescriptor(key: "wasChosen", ascending: true)
         request.sortDescriptors = [sortDescriptor]
         fetchedResultsController = NSFetchedResultsController(fetchRequest: request, managedObjectContext: context, sectionNameKeyPath: nil, cacheName: nil)
@@ -157,7 +157,7 @@ class AODViewController: UIViewController{
                 
                 let imagesNC = UINavigationController()
                 let layout = UICollectionViewFlowLayout()
-                let imagesVC = ImagesViewController(collectionViewLayout: layout)
+                let imagesVC = SelectionViewController(collectionViewLayout: layout)
                 imagesNC.pushViewController(imagesVC, animated: true)
                 imagesVC.context = context
                 imagesVC.AODCollectionViewHeight = collectionView.frame.height
@@ -172,7 +172,7 @@ class AODViewController: UIViewController{
     // Mark - Data loading
     
     private func loadImagesFromCoreData() {
-        let fetchRequest = Image.fetchRequest()
+        let fetchRequest = Item.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "wasChosen == %@", argumentArray: [true])
         do {
             numberOfImages = try context.count(for: fetchRequest)
@@ -184,14 +184,14 @@ class AODViewController: UIViewController{
 
 // MARK: - UICollectionViewDataSource
 
-extension AODViewController: UICollectionViewDataSource{
+extension MainViewController: UICollectionViewDataSource{
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return numberOfImages == 0 ? 1: numberOfImages
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
 
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "imageCell", for: indexPath) as! ImageCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "mainImageCell", for: indexPath) as! MainImageCell
         
         if numberOfImages == 0{
             cell.pictureView.tintColor = .darkGray
@@ -201,9 +201,9 @@ extension AODViewController: UICollectionViewDataSource{
             // Подгружаем данные из СoreData
             let operationQueue = DispatchQueue(label: "AODUpdater")
             operationQueue.async {
-                let fetchRequest = Image.fetchRequest()
+                let fetchRequest = Item.fetchRequest()
                 fetchRequest.predicate = NSPredicate(format: "indexPathRow == %@", argumentArray: [Int16(indexPath.row)])
-                var fetchedImages: Image?
+                var fetchedImages: Item?
                 do {
                     fetchedImages = try self.context.fetch(fetchRequest).first!
                 } catch let error as NSError {
@@ -223,7 +223,7 @@ extension AODViewController: UICollectionViewDataSource{
 
 // MARK: - UICollectionViewDelegate
 
-extension AODViewController: UICollectionViewDelegate{
+extension MainViewController: UICollectionViewDelegate{
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
         return UIEdgeInsets(top: 0, left: collectionView.frame.width / 4, bottom: 0, right: collectionView.frame.width / 4)
     }
@@ -245,7 +245,7 @@ extension AODViewController: UICollectionViewDelegate{
     }
 }
 
-extension AODViewController: UICollectionViewDelegateFlowLayout{
+extension MainViewController: UICollectionViewDelegateFlowLayout{
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: collectionView.frame.height, height: collectionView.frame.height)
@@ -256,7 +256,7 @@ extension AODViewController: UICollectionViewDelegateFlowLayout{
 // Mark - Delegate for ImagesViewController which reload Data
 
 
-extension AODViewController: NSFetchedResultsControllerDelegate{
+extension MainViewController: NSFetchedResultsControllerDelegate{
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         loadImagesFromCoreData()
         collectionView.reloadData()
@@ -266,7 +266,7 @@ extension AODViewController: NSFetchedResultsControllerDelegate{
 
 // Mark - First start checker
 
-extension AODViewController{
+extension MainViewController{
     
     private func firstStartChecker(){
 
@@ -288,7 +288,7 @@ extension AODViewController{
             image?.draw(in: CGRect(x: 0, y: 0, width: newSize.width, height: newSize.height))
             guard let newImage = UIGraphicsGetImageFromCurrentImageContext() else {return}
             UIGraphicsEndImageContext()
-            let item = Image(context: context)
+            let item = Item(context: context)
             item.picture = newImage.pngData()
             item.wasChosen = true
             item.indexPathRow = Int16(i)

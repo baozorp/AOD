@@ -7,29 +7,29 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		B46076E629CDA42B00AC7E0D /* File.swift in Sources */ = {isa = PBXBuildFile; fileRef = B46076E529CDA42B00AC7E0D /* File.swift */; };
-		B4A93A1B29C2084600B334F1 /* ImagesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4A93A1A29C2084600B334F1 /* ImagesViewController.swift */; };
+		B45666D729E071B900A7CFEB /* MainImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B45666D629E071B900A7CFEB /* MainImageCell.swift */; };
+		B45666D929E072FE00A7CFEB /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B45666D829E072FE00A7CFEB /* LaunchScreen.storyboard */; };
+		B4A93A1B29C2084600B334F1 /* SelectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4A93A1A29C2084600B334F1 /* SelectionViewController.swift */; };
 		B4DEF94729C128B600E3C172 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4DEF94629C128B600E3C172 /* AppDelegate.swift */; };
 		B4DEF94929C128B600E3C172 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4DEF94829C128B600E3C172 /* SceneDelegate.swift */; };
-		B4DEF94B29C128B600E3C172 /* AODViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4DEF94A29C128B600E3C172 /* AODViewController.swift */; };
+		B4DEF94B29C128B600E3C172 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4DEF94A29C128B600E3C172 /* MainViewController.swift */; };
 		B4DEF95129C128B600E3C172 /* AOD.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = B4DEF94F29C128B600E3C172 /* AOD.xcdatamodeld */; };
 		B4DEF95329C128B700E3C172 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B4DEF95229C128B700E3C172 /* Assets.xcassets */; };
-		B4DEF95629C128B700E3C172 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B4DEF95429C128B700E3C172 /* LaunchScreen.storyboard */; };
-		B4DEF95E29C1296900E3C172 /* ImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4DEF95D29C1296900E3C172 /* ImageCell.swift */; };
+		B4DEF95E29C1296900E3C172 /* SelectionImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4DEF95D29C1296900E3C172 /* SelectionImageCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		B46076E529CDA42B00AC7E0D /* File.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = File.swift; sourceTree = "<group>"; };
-		B4A93A1A29C2084600B334F1 /* ImagesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagesViewController.swift; sourceTree = "<group>"; };
+		B45666D629E071B900A7CFEB /* MainImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainImageCell.swift; sourceTree = "<group>"; };
+		B45666D829E072FE00A7CFEB /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
+		B4A93A1A29C2084600B334F1 /* SelectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionViewController.swift; sourceTree = "<group>"; };
 		B4DEF94329C128B600E3C172 /* AOD.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AOD.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B4DEF94629C128B600E3C172 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B4DEF94829C128B600E3C172 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
-		B4DEF94A29C128B600E3C172 /* AODViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AODViewController.swift; sourceTree = "<group>"; };
+		B4DEF94A29C128B600E3C172 /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
 		B4DEF95029C128B600E3C172 /* AOD.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = AOD.xcdatamodel; sourceTree = "<group>"; };
 		B4DEF95229C128B700E3C172 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		B4DEF95529C128B700E3C172 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		B4DEF95729C128B700E3C172 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		B4DEF95D29C1296900E3C172 /* ImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCell.swift; sourceTree = "<group>"; };
+		B4DEF95D29C1296900E3C172 /* SelectionImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionImageCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -43,6 +43,132 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		B45666C929E06F0C00A7CFEB /* Supporting files */ = {
+			isa = PBXGroup;
+			children = (
+				B4DEF95229C128B700E3C172 /* Assets.xcassets */,
+				B4DEF95729C128B700E3C172 /* Info.plist */,
+			);
+			path = "Supporting files";
+			sourceTree = "<group>";
+		};
+		B45666CA29E06F4B00A7CFEB /* Application */ = {
+			isa = PBXGroup;
+			children = (
+				B45666CD29E06F6B00A7CFEB /* Controller */,
+				B45666CC29E06F6500A7CFEB /* View */,
+				B45666CB29E06F5200A7CFEB /* Model */,
+			);
+			path = Application;
+			sourceTree = "<group>";
+		};
+		B45666CB29E06F5200A7CFEB /* Model */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		B45666CC29E06F6500A7CFEB /* View */ = {
+			isa = PBXGroup;
+			children = (
+				B45666D829E072FE00A7CFEB /* LaunchScreen.storyboard */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		B45666CD29E06F6B00A7CFEB /* Controller */ = {
+			isa = PBXGroup;
+			children = (
+				B4DEF94629C128B600E3C172 /* AppDelegate.swift */,
+				B4DEF94829C128B600E3C172 /* SceneDelegate.swift */,
+			);
+			path = Controller;
+			sourceTree = "<group>";
+		};
+		B45666CE29E06FA500A7CFEB /* CoreData */ = {
+			isa = PBXGroup;
+			children = (
+				B45666DE29E075EC00A7CFEB /* Model */,
+			);
+			path = CoreData;
+			sourceTree = "<group>";
+		};
+		B45666CF29E0701100A7CFEB /* MainScreen */ = {
+			isa = PBXGroup;
+			children = (
+				B45666CE29E06FA500A7CFEB /* CoreData */,
+				B45666D229E0703500A7CFEB /* Model */,
+				B45666D129E0703000A7CFEB /* View */,
+				B45666D029E0702400A7CFEB /* Controller */,
+			);
+			path = MainScreen;
+			sourceTree = "<group>";
+		};
+		B45666D029E0702400A7CFEB /* Controller */ = {
+			isa = PBXGroup;
+			children = (
+				B4DEF94A29C128B600E3C172 /* MainViewController.swift */,
+			);
+			path = Controller;
+			sourceTree = "<group>";
+		};
+		B45666D129E0703000A7CFEB /* View */ = {
+			isa = PBXGroup;
+			children = (
+				B45666D629E071B900A7CFEB /* MainImageCell.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		B45666D229E0703500A7CFEB /* Model */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		B45666DA29E0750B00A7CFEB /* SelectionScreen */ = {
+			isa = PBXGroup;
+			children = (
+				B45666DD29E0752C00A7CFEB /* Controller */,
+				B45666DC29E0752700A7CFEB /* View */,
+				B45666DB29E0752000A7CFEB /* Model */,
+			);
+			path = SelectionScreen;
+			sourceTree = "<group>";
+		};
+		B45666DB29E0752000A7CFEB /* Model */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		B45666DC29E0752700A7CFEB /* View */ = {
+			isa = PBXGroup;
+			children = (
+				B4DEF95D29C1296900E3C172 /* SelectionImageCell.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		B45666DD29E0752C00A7CFEB /* Controller */ = {
+			isa = PBXGroup;
+			children = (
+				B4A93A1A29C2084600B334F1 /* SelectionViewController.swift */,
+			);
+			path = Controller;
+			sourceTree = "<group>";
+		};
+		B45666DE29E075EC00A7CFEB /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				B4DEF94F29C128B600E3C172 /* AOD.xcdatamodeld */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
 		B4DEF93A29C128B600E3C172 = {
 			isa = PBXGroup;
 			children = (
@@ -62,16 +188,10 @@
 		B4DEF94529C128B600E3C172 /* AOD */ = {
 			isa = PBXGroup;
 			children = (
-				B4DEF95D29C1296900E3C172 /* ImageCell.swift */,
-				B4DEF94629C128B600E3C172 /* AppDelegate.swift */,
-				B4DEF94829C128B600E3C172 /* SceneDelegate.swift */,
-				B4DEF94A29C128B600E3C172 /* AODViewController.swift */,
-				B4A93A1A29C2084600B334F1 /* ImagesViewController.swift */,
-				B46076E529CDA42B00AC7E0D /* File.swift */,
-				B4DEF95229C128B700E3C172 /* Assets.xcassets */,
-				B4DEF95429C128B700E3C172 /* LaunchScreen.storyboard */,
-				B4DEF95729C128B700E3C172 /* Info.plist */,
-				B4DEF94F29C128B600E3C172 /* AOD.xcdatamodeld */,
+				B45666DA29E0750B00A7CFEB /* SelectionScreen */,
+				B45666CF29E0701100A7CFEB /* MainScreen */,
+				B45666CA29E06F4B00A7CFEB /* Application */,
+				B45666C929E06F0C00A7CFEB /* Supporting files */,
 			);
 			path = AOD;
 			sourceTree = "<group>";
@@ -134,8 +254,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B4DEF95629C128B700E3C172 /* LaunchScreen.storyboard in Resources */,
 				B4DEF95329C128B700E3C172 /* Assets.xcassets in Resources */,
+				B45666D929E072FE00A7CFEB /* LaunchScreen.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -146,28 +266,17 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B4A93A1B29C2084600B334F1 /* ImagesViewController.swift in Sources */,
+				B4A93A1B29C2084600B334F1 /* SelectionViewController.swift in Sources */,
 				B4DEF95129C128B600E3C172 /* AOD.xcdatamodeld in Sources */,
-				B46076E629CDA42B00AC7E0D /* File.swift in Sources */,
-				B4DEF94B29C128B600E3C172 /* AODViewController.swift in Sources */,
+				B4DEF94B29C128B600E3C172 /* MainViewController.swift in Sources */,
 				B4DEF94729C128B600E3C172 /* AppDelegate.swift in Sources */,
 				B4DEF94929C128B600E3C172 /* SceneDelegate.swift in Sources */,
-				B4DEF95E29C1296900E3C172 /* ImageCell.swift in Sources */,
+				B45666D729E071B900A7CFEB /* MainImageCell.swift in Sources */,
+				B4DEF95E29C1296900E3C172 /* SelectionImageCell.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXVariantGroup section */
-		B4DEF95429C128B700E3C172 /* LaunchScreen.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				B4DEF95529C128B700E3C172 /* Base */,
-			);
-			name = LaunchScreen.storyboard;
-			sourceTree = "<group>";
-		};
-/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		B4DEF95829C128B700E3C172 /* Debug */ = {
@@ -220,7 +329,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -274,7 +383,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -293,7 +402,8 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 8ZZ48UWX6P;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = AOD/Info.plist;
+				INFOPLIST_FILE = "AOD/Supporting files/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = AOD;
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Разрешите доступ к фото, чтобы добавлять свои собственные изображения";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen.storyboard;
@@ -326,7 +436,8 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 8ZZ48UWX6P;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = AOD/Info.plist;
+				INFOPLIST_FILE = "AOD/Supporting files/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = AOD;
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Разрешите доступ к фото, чтобы добавлять свои собственные изображения";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen.storyboard;

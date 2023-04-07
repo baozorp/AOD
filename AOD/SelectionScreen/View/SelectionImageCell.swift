@@ -7,16 +7,27 @@
 
 import UIKit
 
-class ImageCell: UICollectionViewCell {
+class SelectionImageCell: UICollectionViewCell {
     
     let pictureView = UIImageView()
     let checkStatus = UIImageView()
     let deleteStatus = UIImageView()
-    var image: Image?
+    var image: Item?
     private var firstAnimation = CABasicAnimation(keyPath: "position")
     private var secondAnimation = CABasicAnimation(keyPath: "transform.rotation")
     var deleteAppearenceAnimation = UIViewPropertyAnimator()
     var isDeleting = false
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setupAnimations()
+        setupViews()
+        setupImages()
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     func animateDeleter(isCollectionViewReloadData: Bool? = false){
         if isDeleting{
@@ -75,19 +86,6 @@ class ImageCell: UICollectionViewCell {
             self.checkStatus.transform = CGAffineTransform(scaleX: 0.01, y: 0.01)
         }
         checkAppearenceAnimation.startAnimation()
-    }
-    
-    
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        setupAnimations()
-        setupViews()
-        setupImages()
-    }
-    
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
     }
 
     

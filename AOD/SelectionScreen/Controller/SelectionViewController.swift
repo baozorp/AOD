@@ -1,5 +1,5 @@
 //
-//  ImagesViewController.swift
+//  SelectionViewController.swift
 //  AOD
 //
 //  Created by Михаил Шекунов on 15.03.2023.
@@ -10,14 +10,13 @@ import CoreData
 import PhotosUI
 import UniformTypeIdentifiers
 
-private let reuseIdentifier = "Cell"
 
-class ImagesViewController: UICollectionViewController {
+class SelectionViewController: UICollectionViewController {
     
     // MARK: - Properties
     
-    private var allImages: [Image] = []
-    private var imagesForRemove: [Image] = []
+    private var allImages: [Item] = []
+    private var imagesForRemove: [Item] = []
     private var lastChosenElement: Int!
     private var isDeleting = false
 
@@ -54,7 +53,7 @@ class ImagesViewController: UICollectionViewController {
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
 
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "imageCell", for: indexPath) as! ImageCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "selectionImageCell", for: indexPath) as! SelectionImageCell
         cell.isDeleting = self.isDeleting
         // Add async to get rid of lags in collectionView
         let operationQueue = OperationQueue()
@@ -90,7 +89,7 @@ class ImagesViewController: UICollectionViewController {
             choseElementToDisplay(indexPath: indexPath)
         }
         else{
-            guard let cell = self.collectionView.cellForItem(at: indexPath) as? ImageCell else { return }
+            guard let cell = self.collectionView.cellForItem(at: indexPath) as? SelectionImageCell else { return }
             let feedback = UIImpactFeedbackGenerator(style: .rigid)
             feedback.prepare()
             feedback.impactOccurred()
@@ -105,7 +104,7 @@ class ImagesViewController: UICollectionViewController {
             choseElementToDisplay(indexPath: indexPath)
         }
         else{
-            guard let cell = self.collectionView.cellForItem(at: indexPath) as? ImageCell else { return }
+            guard let cell = self.collectionView.cellForItem(at: indexPath) as? SelectionImageCell else { return }
             UISelectionFeedbackGenerator().selectionChanged()
             cell.animateDeleter()
             guard let image = cell.image else {return}
@@ -117,7 +116,7 @@ class ImagesViewController: UICollectionViewController {
 
 // MARK: - UICollectionViewDelegateFlowLayout
 
-extension ImagesViewController: UICollectionViewDelegateFlowLayout {
+extension SelectionViewController: UICollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: collectionView.frame.width / 4, height: collectionView.frame.width / 4)
@@ -126,14 +125,14 @@ extension ImagesViewController: UICollectionViewDelegateFlowLayout {
 
 // Mark: - CoreData
 
-extension ImagesViewController{
+extension SelectionViewController{
     
     private func getImagesFromCoreData() {
         
-        let fetchRequestChosen = Image.fetchRequest()
+        let fetchRequestChosen = Item.fetchRequest()
         fetchRequestChosen.predicate = NSPredicate(format: "wasChosen == %@", argumentArray: [true])
         
-        let fetchRequestAll = Image.fetchRequest()
+        let fetchRequestAll = Item.fetchRequest()
         fetchRequestAll.predicate = NSPredicate(format: "picture != nil")
         
         do {
@@ -158,7 +157,7 @@ extension ImagesViewController{
 
 // Mark - Actions
 
-extension ImagesViewController{
+extension SelectionViewController{
     
     @objc private func handleLongPress(_ gestureRecognizer: UILongPressGestureRecognizer) {
         
@@ -168,7 +167,7 @@ extension ImagesViewController{
             if collectionView.indexPathForItem(at: point) != nil {
                 isDeleting = true
                 for i in 0...allImages.count-1{
-                    guard let cell = collectionView.cellForItem(at: IndexPath(row: i, section: 0)) as? ImageCell else{continue}
+                    guard let cell = collectionView.cellForItem(at: IndexPath(row: i, section: 0)) as? SelectionImageCell else{continue}
                     cell.isDeleting = true
                     cell.shakeCell()
                     cell.animateChecker(isWasSelected: true)
@@ -192,7 +191,7 @@ extension ImagesViewController{
         // Denimating shaking, animating checkers and deleters
         
         for i in 0...allImages.count-1{
-            guard let cell = collectionView.cellForItem(at: IndexPath(row: i, section: 0)) as? ImageCell else{continue}
+            guard let cell = collectionView.cellForItem(at: IndexPath(row: i, section: 0)) as? SelectionImageCell else{continue}
             cell.isDeleting = self.isDeleting
             cell.shakeCell()
             cell.animateChecker(isWasSelected: false)
@@ -235,7 +234,7 @@ extension ImagesViewController{
         
         // Denimating shaking, animating checkers and deleters
         for i in -1...allImages.count{
-            guard let cell = collectionView.cellForItem(at: IndexPath(row: i, section: 0)) as? ImageCell else{continue}
+            guard let cell = collectionView.cellForItem(at: IndexPath(row: i, section: 0)) as? SelectionImageCell else{continue}
             cell.isDeleting = self.isDeleting
             cell.shakeCell()
             cell.animateChecker(isWasSelected: false)
@@ -255,7 +254,7 @@ extension ImagesViewController{
     
     private func choseElementToDisplay(indexPath: IndexPath){
         UISelectionFeedbackGenerator().selectionChanged()
-        guard let cell = self.collectionView.cellForItem(at: indexPath) as? ImageCell else { return }
+        guard let cell = self.collectionView.cellForItem(at: indexPath) as? SelectionImageCell else { return }
         guard let image = cell.image else { return }
         cell.isSelected = false
         var selectToRow: Int
@@ -349,7 +348,7 @@ extension ImagesViewController{
 
 // Mark - Configurations
 
-extension ImagesViewController{
+extension SelectionViewController{
     
     private func configureNavigationBar() {
         
@@ -394,7 +393,7 @@ extension ImagesViewController{
     private func configureCollectionView() {
 
         collectionView.backgroundColor = .darkGray
-        collectionView.register(ImageCell.self, forCellWithReuseIdentifier: "imageCell")
+        collectionView.register(SelectionImageCell.self, forCellWithReuseIdentifier: "selectionImageCell")
         let longPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
         longPressGesture.minimumPressDuration = 1
         collectionView.addGestureRecognizer(longPressGesture)
@@ -408,7 +407,7 @@ extension ImagesViewController{
 
 // Mark - PHPicker
 
-extension ImagesViewController: PHPickerViewControllerDelegate{
+extension SelectionViewController: PHPickerViewControllerDelegate{
     
     @objc private func pickImages(_ sender: Any) {
         
@@ -494,7 +493,7 @@ extension ImagesViewController: PHPickerViewControllerDelegate{
             return
         }
         UIGraphicsEndImageContext()
-        let newItem = Image(context: context)
+        let newItem = Item(context: context)
         newItem.picture = newImage.pngData()
         newItem.wasChosen = true
         lastChosenElement += 1
