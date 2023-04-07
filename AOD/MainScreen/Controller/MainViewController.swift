@@ -210,9 +210,9 @@ extension MainViewController: UICollectionViewDataSource{
                     print(error.localizedDescription)
                 }
                 DispatchQueue.main.async {
-                    guard let picture = fetchedImages!.picture else {return}
+                    guard let image = fetchedImages!.image else {return}
                     cell.pictureView.layer.cornerRadius = 50
-                    cell.pictureView.image = UIImage(data: (picture))
+                    cell.pictureView.image = UIImage(data: (image))
                 }
             }
         }
@@ -289,7 +289,7 @@ extension MainViewController{
             guard let newImage = UIGraphicsGetImageFromCurrentImageContext() else {return}
             UIGraphicsEndImageContext()
             let item = Item(context: context)
-            item.picture = newImage.pngData()
+            item.image = newImage.pngData()
             item.wasChosen = true
             item.indexPathRow = Int16(i)
         }

@@ -2,8 +2,8 @@
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="21754" systemVersion="22E252" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="FirstStart" representedClassName="FirstStart" syncable="YES" codeGenerationType="class"/>
     <entity name="Item" representedClassName="Item" syncable="YES" codeGenerationType="class">
+        <attribute name="image" optional="YES" attributeType="Binary"/>
         <attribute name="indexPathRow" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="picture" optional="YES" attributeType="Binary"/>
         <attribute name="wasChosen" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
     </entity>
 </model>

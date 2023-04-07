@@ -64,8 +64,8 @@ class SelectionViewController: UICollectionViewController {
                 cell.animateChecker(isWasSelected: true)
                 cell.pictureView.layer.cornerRadius = 25
 
-                if let picture = AODImage.picture{
-                    cell.pictureView.image = UIImage(data: picture)
+                if let image = AODImage.image{
+                    cell.pictureView.image = UIImage(data: image)
                 }
                 if imagesForRemove.contains(cell.image!){
                     cell.animateDeleter()
@@ -133,7 +133,7 @@ extension SelectionViewController{
         fetchRequestChosen.predicate = NSPredicate(format: "wasChosen == %@", argumentArray: [true])
         
         let fetchRequestAll = Item.fetchRequest()
-        fetchRequestAll.predicate = NSPredicate(format: "picture != nil")
+        fetchRequestAll.predicate = NSPredicate(format: "image != nil")
         
         do {
             lastChosenElement = try context.count(for: fetchRequestChosen) - 1
@@ -494,7 +494,7 @@ extension SelectionViewController: PHPickerViewControllerDelegate{
         }
         UIGraphicsEndImageContext()
         let newItem = Item(context: context)
-        newItem.picture = newImage.pngData()
+        newItem.image = newImage.pngData()
         newItem.wasChosen = true
         lastChosenElement += 1
         newItem.indexPathRow = Int16(lastChosenElement)
