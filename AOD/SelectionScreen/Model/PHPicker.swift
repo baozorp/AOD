@@ -28,9 +28,9 @@ class PHPicker{
         
         var newImages = [UIImage]()
         for result in results {
+            dispatchGroup.enter()
             semaphore.wait()
             queue.async {
-                dispatchGroup.enter()
                 if result.itemProvider.hasItemConformingToTypeIdentifier(UTType.heic.identifier){
                     result.itemProvider.loadFileRepresentation(forTypeIdentifier: UTType.heic.identifier) {url, error in
                         defer {

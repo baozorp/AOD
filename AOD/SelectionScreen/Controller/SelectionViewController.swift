@@ -439,12 +439,13 @@ extension SelectionViewController: PHPickerViewControllerDelegate, SelectionView
             let item = Item(context: context)
             item.image = newItem.pngData()
             item.wasChosen = true
-            item.indexPathRow = Int16(lastChosenElement)
             allImages.insert(item, at: lastChosenElement)
-            saveContext()
             indexPathes.append(IndexPath(row: lastChosenElement, section: 0))
         }
-        
+        for i in 0..<allImages.count{
+            allImages[i].indexPathRow = Int16(i)
+        }
+        saveContext()
         collectionView.insertItems(at: indexPathes)
     }
 }
