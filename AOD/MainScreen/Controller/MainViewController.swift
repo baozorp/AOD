@@ -11,6 +11,8 @@ import CoreData
 class MainViewController: UIViewController{
     
     private var mainView: MainView!
+    private var mainViewModel: MainViewModel!
+    
     private var numberOfImages = 0
     private var context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
@@ -30,11 +32,9 @@ class MainViewController: UIViewController{
         mainView = MainView(frame: view.bounds, delegate: self)
         mainView.collectionView.dataSource = self
         mainView.collectionView.delegate = self
+        mainViewModel = MainViewModel(sizeOfCell: mainView.collectionView.frame.height, delegate: self)
         self.view.addSubview(mainView)
         setTimer()
-        firstStartChecker()
-        loadImagesFromCoreData()
-        createNSFetchRequestResultsController()
     }
 
     
@@ -80,31 +80,6 @@ class MainViewController: UIViewController{
             mainView.collectionView.center.y += 5
         } else {
             isMovingToTop = !isMovingToTop
-        }
-    }
-
-    
-    func createNSFetchRequestResultsController(){
-        let request: NSFetchRequest<Item> = Item.fetchRequest()
-        let sortDescriptor = NSSortDescriptor(key: "wasChosen", ascending: true)
-        request.sortDescriptors = [sortDescriptor]
-        fetchedResultsController = NSFetchedResultsController(fetchRequest: request, managedObjectContext: context, sectionNameKeyPath: nil, cacheName: nil)
-        fetchedResultsController.delegate = self
-        do {
-          try fetchedResultsController.performFetch()
-        } catch {
-          print("Error fetching data: \(error)")
-        }
-    }
-    // Mark - Data loading
-    
-    private func loadImagesFromCoreData() {
-        let fetchRequest = Item.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "wasChosen == %@", argumentArray: [true])
-        do {
-            numberOfImages = try context.count(for: fetchRequest)
-        } catch let error as NSError {
-            print(error.localizedDescription)
         }
     }
 }
@@ -180,55 +155,6 @@ extension MainViewController: UICollectionViewDelegateFlowLayout{
     
 }
 
-// Mark - Delegate for ImagesViewController which reload Data
-
-
-extension MainViewController: NSFetchedResultsControllerDelegate{
-    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        loadImagesFromCoreData()
-        mainView.collectionView.reloadData()
-    }
-}
-
-
-// Mark - First start checker
-
-extension MainViewController{
-    
-    private func firstStartChecker(){
-
-        let firstStartRequest = FirstStart.fetchRequest()
-
-        do{
-            guard try context.count(for: firstStartRequest) == 0 else {return}
-
-        }catch let error as NSError{
-            print(error.localizedDescription)
-        }
-        _ = FirstStart(context: context)
-        
-        let startPictures = ["cosmo", "journalist", "cowboy"]
-        for i in 0...(startPictures.count-1){
-            let image = UIImage(named: startPictures[i])
-            let newSize = CGSize(width: mainView.collectionView.frame.height, height: mainView.collectionView.frame.height)
-            UIGraphicsBeginImageContextWithOptions(newSize, false, 0.0)
-            image?.draw(in: CGRect(x: 0, y: 0, width: newSize.width, height: newSize.height))
-            guard let newImage = UIGraphicsGetImageFromCurrentImageContext() else {return}
-            UIGraphicsEndImageContext()
-            let item = Item(context: context)
-            item.image = newImage.pngData()
-            item.wasChosen = true
-            item.indexPathRow = Int16(i)
-        }
-
-        do{
-            try context.save()
-        }catch let error as NSError{
-            print(error.localizedDescription)
-        }
-    }
-}
-
 // MARK: - Long Press Gesture Handling
 extension MainViewController: MainViewDelegate{
     
@@ -247,4 +173,12 @@ extension MainViewController: MainViewDelegate{
         UIApplication.shared.isIdleTimerDisabled = false
         present(imagesNC, animated: true)
     }
+}
+
+extension MainViewController: MainViewModelDelegate{
+    func didCollectionChanged(numberOfImages: Int) {
+        self.numberOfImages = numberOfImages
+        mainView.collectionView.reloadData()
+    }
+
 }

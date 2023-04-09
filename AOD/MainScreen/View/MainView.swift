@@ -78,7 +78,6 @@ class MainView: UIView {
         flowLayout.scrollDirection = .horizontal
     }
     
-    
     private func setupLongPressGesture(){
         let longPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
         longPressGesture.minimumPressDuration = 1
