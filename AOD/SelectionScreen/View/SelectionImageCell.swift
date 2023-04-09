@@ -92,7 +92,6 @@ class SelectionImageCell: UICollectionViewCell {
     override func layoutSubviews() {
         super.layoutSubviews()
         shakeCell()
-        animateChecker(isWasSelected: false)
     }
 
     func shakeCell() {

@@ -62,7 +62,7 @@ class SelectionViewController: UICollectionViewController {
             cell.image = AODImage
             OperationQueue.main.addOperation {
                 cell.pictureView.layer.cornerRadius = 25
-
+                cell.animateChecker(isWasSelected: false)
                 if let image = AODImage.image{
                     cell.pictureView.image = UIImage(data: image)
                 }
@@ -71,9 +71,7 @@ class SelectionViewController: UICollectionViewController {
                 }
                 else{
                     cell.animateDeleter(isCollectionViewReloadData: true)
-                }
-               
-                
+                }      
             }
         }
         
@@ -159,7 +157,6 @@ extension SelectionViewController{
 extension SelectionViewController{
     
     @objc private func handleLongPress(_ gestureRecognizer: UILongPressGestureRecognizer) {
-        
         guard !isDeleting else {return}
         if gestureRecognizer.state == .began {
             let point = gestureRecognizer.location(in: collectionView)
@@ -405,7 +402,7 @@ extension SelectionViewController{
 
 // Mark - PHPicker
 
-extension SelectionViewController: PHPickerViewControllerDelegate, SelectionViewControllerDelegate{
+extension SelectionViewController: PHPickerViewControllerDelegate, PHPickerControllerDelegate{
     
     @objc private func pickImages(_ sender: Any) {
         

@@ -9,13 +9,13 @@ import UIKit
 import PhotosUI
 import UniformTypeIdentifiers
 
-protocol SelectionViewControllerDelegate{
+protocol PHPickerControllerDelegate{
     func imagesWasLoaded(_ imagesArray: [UIImage])
 }
 
 class PHPicker{
     
-    let delegate: SelectionViewControllerDelegate
+    let delegate: PHPickerControllerDelegate
     
     init(_ selectionViewControllerDelegate: SelectionViewController){
         delegate = selectionViewControllerDelegate

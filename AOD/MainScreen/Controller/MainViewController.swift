@@ -21,11 +21,13 @@ class MainViewController: UIViewController{
     private var previousMinute: String = ""
     private var isMovingToTop = true
     
+    private var clocktimer: Timer?
+    
     override var prefersHomeIndicatorAutoHidden: Bool {
         return true
     }
     
-    private var clocktimer: Timer?
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -156,6 +158,7 @@ extension MainViewController: UICollectionViewDelegateFlowLayout{
 }
 
 // MARK: - Long Press Gesture Handling
+
 extension MainViewController: MainViewDelegate{
     
     func didSelectItemAtLongPress() {
@@ -174,6 +177,8 @@ extension MainViewController: MainViewDelegate{
         present(imagesNC, animated: true)
     }
 }
+
+// MARK: - CoreData updated Delegate
 
 extension MainViewController: MainViewModelDelegate{
     func didCollectionChanged(numberOfImages: Int) {
