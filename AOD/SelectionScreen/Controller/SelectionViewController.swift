@@ -402,7 +402,7 @@ extension SelectionViewController{
 
 // Mark - PHPicker
 
-extension SelectionViewController: PHPickerViewControllerDelegate, PHPickerControllerDelegate{
+extension SelectionViewController: PHPickerViewControllerDelegate{
     
     @objc private func pickImages(_ sender: Any) {
         
@@ -414,7 +414,6 @@ extension SelectionViewController: PHPickerViewControllerDelegate, PHPickerContr
         configuration.filter = .images
         configuration.selectionLimit = 10
         
-        
         let picker = PHPickerViewController(configuration: configuration)
         picker.overrideUserInterfaceStyle = .dark
         
@@ -424,9 +423,12 @@ extension SelectionViewController: PHPickerViewControllerDelegate, PHPickerContr
     }
     
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
-        let phPicker = PHPicker(self)
-        phPicker.getImage(results, AODCollectionViewHeight)
-        dismiss(animated: true, completion: nil)
+        picker.dismiss(animated: true) {
+            let phPicker = PHPicker()
+            phPicker.getImage(results, self.AODCollectionViewHeight) { newImages in
+                self.imagesWasLoaded(newImages)
+            }
+        }
     }
 
     func imagesWasLoaded(_ newItemsArray: [UIImage]) {

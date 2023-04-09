@@ -9,19 +9,9 @@ import UIKit
 import PhotosUI
 import UniformTypeIdentifiers
 
-protocol PHPickerControllerDelegate{
-    func imagesWasLoaded(_ imagesArray: [UIImage])
-}
-
 class PHPicker{
     
-    let delegate: PHPickerControllerDelegate
-    
-    init(_ selectionViewControllerDelegate: SelectionViewController){
-        delegate = selectionViewControllerDelegate
-    }
-    
-    func getImage(_ results: [PHPickerResult], _ AODCollectionViewHeight: CGFloat){
+    func getImage(_ results: [PHPickerResult], _ AODCollectionViewHeight: CGFloat, completion: @escaping ([UIImage]) -> Void){
         let queue = DispatchQueue(label: "PHPickerQueue", attributes: .concurrent)
         let dispatchGroup = DispatchGroup()
         let semaphore = DispatchSemaphore(value: 5)
@@ -72,7 +62,7 @@ class PHPicker{
         }
         
         dispatchGroup.notify(queue: DispatchQueue.main) {
-            self.delegate.imagesWasLoaded(newImages)
+            completion(newImages)
         }
     }
     
