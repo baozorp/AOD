@@ -10,29 +10,28 @@ import CoreData
 
 class MainViewController: UIViewController{
     
+    private var mainView: MainView!
     private var numberOfImages = 0
     private var context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
-    private var collectionView: UICollectionView!
-    private var longPressGesture: UILongPressGestureRecognizer!
-    
     var fetchedResultsController: NSFetchedResultsController<Item>!
-    
-    private let clock = UILabel()
-    private let date = UILabel()
+
     private var previousMinute: String = ""
-    private var moveToTop = true
+    private var isMovingToTop = true
     
     override var prefersHomeIndicatorAutoHidden: Bool {
         return true
     }
     
     private var clocktimer: Timer?
-
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupUI()
+        mainView = MainView(frame: view.bounds, delegate: self)
+        mainView.collectionView.dataSource = self
+        mainView.collectionView.delegate = self
+        self.view.addSubview(mainView)
+        setTimer()
         firstStartChecker()
         loadImagesFromCoreData()
         createNSFetchRequestResultsController()
@@ -50,125 +49,53 @@ class MainViewController: UIViewController{
         return true
     }
     
-    private func setupUI() {
-        
-        UIApplication.shared.isIdleTimerDisabled = true
-        view.backgroundColor = .black
-        setupCollectionView()
-        setupClock()
-        setupLongPressGesture()
+    func setTimer() {
+        previousMinute = mainView.clock.text ?? ""
+        clocktimer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(timerFired(_:)), userInfo: nil, repeats: true)
     }
-    
-    private func setupClock(){
+
+    @objc func timerFired(_ timer: Timer) {
+        let clock = mainView.clock
+        let date = mainView.date
 
         let clockFormatter = DateFormatter()
         clockFormatter.dateFormat = "HH:mm"
-        
+
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "EEE, d MMM"
         dateFormatter.locale = Locale(identifier: "ru_RU")
-        
-        let clockHeight = view.frame.height / 10
-        
-        clock.frame = CGRect(x: 0, y: collectionView.frame.midY - collectionView.frame.height * 1.2, width: view.frame.width, height: clockHeight)
+
         clock.text = clockFormatter.string(from: Date())
-        clock.textColor = UIColor(red: 229/255.0, green: 229/255.0, blue: 229/255.0, alpha: 1.0)
-        clock.font = UIFont.systemFont(ofSize: clockHeight)
-        clock.textAlignment = NSTextAlignment.center
-        previousMinute = clock.text ?? ""
-        self.view.addSubview(clock)
-        
-        date.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: clockHeight/3)
         date.text = dateFormatter.string(from: Date())
-        date.center = CGPoint(x: clock.center.x + 1, y: clock.frame.maxY + date.frame.height/2)
-        date.textColor = UIColor(red: 229/255.0, green: 229/255.0, blue: 229/255.0, alpha: 1.0)
-        date.font = UIFont.systemFont(ofSize: clockHeight/3)
-        date.textAlignment = .center
+        guard clock.text! != previousMinute else { return }
+        previousMinute = clock.text ?? ""
 
-        self.view.addSubview(date)
+        if isMovingToTop, clock.frame.minY > (view.frame.minY + view.safeAreaInsets.top) {
+            clock.center.y -= 5
+            date.center.y -= 5
+            mainView.collectionView.center.y -= 5
+        } else if !isMovingToTop, mainView.collectionView.frame.maxY < (view.frame.maxY - view.safeAreaInsets.bottom - view.frame.height / 8) {
+            clock.center.y += 5
+            date.center.y += 5
+            mainView.collectionView.center.y += 5
+        } else {
+            isMovingToTop = !isMovingToTop
+        }
+    }
 
-        clocktimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true, block: {[unowned self] _ in
-            clock.text = clockFormatter.string(from: Date())
-            date.text = dateFormatter.string(from: Date())
-            guard clock.text! != previousMinute else {return}
-            previousMinute = clock.text ?? ""
-            if moveToTop, clock.frame.minY > (self.view.frame.minY + self.view.safeAreaInsets.top){
-                clock.center.y -= 5
-                date.center.y -= 5
-                collectionView.center.y -= 5
-            }
-            else if !moveToTop, collectionView.frame.maxY < (self.view.frame.maxY - self.view.safeAreaInsets.bottom - self.view.frame.height / 8){
-                clock.center.y += 5
-                date.center.y += 5
-                collectionView.center.y += 5
-            }
-            else{
-                moveToTop = !moveToTop
-            }
-        })
-    }
-    
-    private func setupCollectionView(){
-        let collectionViewY = CGFloat.random(in: (self.view.frame.minY + self.view.frame.width/2)...(self.view.frame.maxY - self.view.safeAreaInsets.bottom - self.view.frame.width))
-        let collectionViewFrame = CGRect(x: 0, y: collectionViewY, width: self.view.frame.width, height: self.view.frame.width/2)
-        collectionView = UICollectionView(frame: collectionViewFrame, collectionViewLayout: UICollectionViewFlowLayout())
-        self.view.addSubview(collectionView)
-        collectionView.dataSource = self
-        collectionView.delegate = self
-        collectionView.backgroundColor = .black
-        collectionView.showsHorizontalScrollIndicator = false
-        collectionView.register(MainImageCell.self, forCellWithReuseIdentifier: "mainImageCell")
-        guard let flowLayout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout else {return}
-        flowLayout.minimumLineSpacing = collectionView.frame.width / 4
-        flowLayout.scrollDirection = .horizontal
-    }
-    
-    private func setupLongPressGesture(){
-        longPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
-        longPressGesture.minimumPressDuration = 1
-        collectionView.addGestureRecognizer(longPressGesture)
-    }
     
     func createNSFetchRequestResultsController(){
-
         let request: NSFetchRequest<Item> = Item.fetchRequest()
         let sortDescriptor = NSSortDescriptor(key: "wasChosen", ascending: true)
         request.sortDescriptors = [sortDescriptor]
         fetchedResultsController = NSFetchedResultsController(fetchRequest: request, managedObjectContext: context, sectionNameKeyPath: nil, cacheName: nil)
         fetchedResultsController.delegate = self
-        
         do {
           try fetchedResultsController.performFetch()
         } catch {
           print("Error fetching data: \(error)")
         }
     }
-    
-    // MARK: - Long Press Gesture Handling
-    
-    @objc func handleLongPress(_ gestureRecognizer: UILongPressGestureRecognizer) {
-        if gestureRecognizer.state == .began {
-            let point = gestureRecognizer.location(in: collectionView)
-            if collectionView.indexPathForItem(at: point) != nil {
-                
-                let feedback = UIImpactFeedbackGenerator(style: .medium)
-                feedback.prepare()
-                feedback.impactOccurred()
-                
-                let imagesNC = UINavigationController()
-                let layout = UICollectionViewFlowLayout()
-                let imagesVC = SelectionViewController(collectionViewLayout: layout)
-                imagesNC.pushViewController(imagesVC, animated: true)
-                imagesVC.context = context
-                imagesVC.AODCollectionViewHeight = collectionView.frame.height
-
-                UIApplication.shared.isIdleTimerDisabled = false
-                
-                present(imagesNC, animated: true)
-            }
-        }
-    }
-    
     // Mark - Data loading
     
     private func loadImagesFromCoreData() {
@@ -230,8 +157,8 @@ extension MainViewController: UICollectionViewDelegate{
 
     
     func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
-        guard let flowLayout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout,
-              let firstVisibleCell = collectionView.visibleCells.first else {
+        guard let flowLayout = mainView.collectionView.collectionViewLayout as? UICollectionViewFlowLayout,
+              let firstVisibleCell = mainView.collectionView.visibleCells.first else {
             return
         }
         
@@ -259,7 +186,7 @@ extension MainViewController: UICollectionViewDelegateFlowLayout{
 extension MainViewController: NSFetchedResultsControllerDelegate{
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         loadImagesFromCoreData()
-        collectionView.reloadData()
+        mainView.collectionView.reloadData()
     }
 }
 
@@ -283,7 +210,7 @@ extension MainViewController{
         let startPictures = ["cosmo", "journalist", "cowboy"]
         for i in 0...(startPictures.count-1){
             let image = UIImage(named: startPictures[i])
-            let newSize = CGSize(width: collectionView.frame.height, height: collectionView.frame.height)
+            let newSize = CGSize(width: mainView.collectionView.frame.height, height: mainView.collectionView.frame.height)
             UIGraphicsBeginImageContextWithOptions(newSize, false, 0.0)
             image?.draw(in: CGRect(x: 0, y: 0, width: newSize.width, height: newSize.height))
             guard let newImage = UIGraphicsGetImageFromCurrentImageContext() else {return}
@@ -299,5 +226,25 @@ extension MainViewController{
         }catch let error as NSError{
             print(error.localizedDescription)
         }
+    }
+}
+
+// MARK: - Long Press Gesture Handling
+extension MainViewController: MainViewDelegate{
+    
+    func didSelectItemAtLongPress() {
+        let feedback = UIImpactFeedbackGenerator(style: .medium)
+        feedback.prepare()
+        feedback.impactOccurred()
+        
+        let imagesNC = UINavigationController()
+        let layout = UICollectionViewFlowLayout()
+        let imagesVC = SelectionViewController(collectionViewLayout: layout)
+        imagesNC.pushViewController(imagesVC, animated: true)
+        imagesVC.context = context
+        imagesVC.AODCollectionViewHeight = mainView.collectionView.frame.height
+        
+        UIApplication.shared.isIdleTimerDisabled = false
+        present(imagesNC, animated: true)
     }
 }
