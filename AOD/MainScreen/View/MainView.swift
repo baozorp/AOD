@@ -36,6 +36,7 @@ class MainView: UIView {
         setupCollectionView()
         setupClock()
         setupLongPressGesture()
+        print("Success setuo mainView UI")
     }
     
     private func setupClock(){
