@@ -53,13 +53,13 @@ class MainViewController: UIViewController{
     
     func setTimer() {
         previousMinute = mainView.clock.text ?? ""
-        clocktimer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(timerFired(_:)), userInfo: nil, repeats: true)
+        clocktimer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(timerFired(_:)), userInfo: nil, repeats: true)
     }
 
     @objc func timerFired(_ timer: Timer) {
         let clock = mainView.clock
         let date = mainView.date
-
+        let stack = mainView.stack
         let clockFormatter = DateFormatter()
         clockFormatter.dateFormat = "HH:mm"
 
@@ -72,13 +72,9 @@ class MainViewController: UIViewController{
         guard clock.text! != previousMinute else { return }
         previousMinute = clock.text ?? ""
 
-        if isMovingToTop, clock.frame.minY > (view.frame.minY + view.safeAreaInsets.top) {
-            clock.center.y -= 5
-            date.center.y -= 5
+        if isMovingToTop, stack.frame.minY > (view.frame.minY + view.safeAreaInsets.top + mainView.clock.frame.height/2) {
             mainView.collectionView.center.y -= 5
-        } else if !isMovingToTop, mainView.collectionView.frame.maxY < (view.frame.maxY - view.safeAreaInsets.bottom - view.frame.height / 8) {
-            clock.center.y += 5
-            date.center.y += 5
+        } else if !isMovingToTop, mainView.collectionView.frame.maxY < (view.frame.maxY - view.safeAreaInsets.bottom - view.frame.height / 6) {
             mainView.collectionView.center.y += 5
         } else {
             isMovingToTop = !isMovingToTop
