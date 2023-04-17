@@ -66,13 +66,12 @@ class MainView: UIView {
         stack.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             stack.centerXAnchor.constraint(equalTo: centerXAnchor),
-            stack.bottomAnchor.constraint(equalTo: collectionView.topAnchor)
+            stack.bottomAnchor.constraint(equalTo: collectionView.topAnchor, constant: -date.font.pointSize)
         ])
             
         stack.axis = .vertical
         stack.alignment = .center
         stack.distribution = .equalSpacing
-        stack.spacing = -date.font.pointSize/2
         
         stack.addArrangedSubview(clock)
         stack.addArrangedSubview(date)

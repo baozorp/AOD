@@ -70,12 +70,14 @@ class MainViewController: UIViewController{
         clock.text = clockFormatter.string(from: Date())
         date.text = dateFormatter.string(from: Date())
         guard clock.text! != previousMinute else { return }
+        
         previousMinute = clock.text ?? ""
-
+        let moveStep = CGFloat(2)
+        
         if isMovingToTop, stack.frame.minY > (view.frame.minY + view.safeAreaInsets.top + mainView.clock.frame.height/2) {
-            mainView.collectionView.center.y -= 5
+            mainView.collectionView.center.y -= moveStep
         } else if !isMovingToTop, mainView.collectionView.frame.maxY < (view.frame.maxY - view.safeAreaInsets.bottom - view.frame.height / 6) {
-            mainView.collectionView.center.y += 5
+            mainView.collectionView.center.y += moveStep
         } else {
             isMovingToTop = !isMovingToTop
         }
