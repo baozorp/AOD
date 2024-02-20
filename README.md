@@ -34,8 +34,23 @@ AOD Image Viewer is an iOS app that allows you to display your favorite images o
 ## Usage
 
 1. Launch the app.
+<p float="left">
+<img src="Screenshots/1.PNG" alt="drawing" width="250"/>
+</p>
 2. Scroll through the collection view on the main screen to change images.
 3. Long-press an image to open the selection menu.
+<p float="left">
+<img src="Screenshots/2.PNG" alt="drawing" width="250"/>
+</p>
 4. Tap the "+" button to add images from your device's photo library.
+<p float="left">
+<img src="Screenshots/3.PNG" alt="drawing" width="250"/>
+</p>
 5. Long-press an image on the main screen to enter delete mode.
+<p float="left">
+<img src="Screenshots/4.PNG" alt="drawing" width="250"/>
+</p>
 6. Tap an image to select it for display on the main screen or for deletion if in delete mode.
+<p float="left">
+<img src="Screenshots/5.PNG" alt="drawing" width="250"/>
+</p>

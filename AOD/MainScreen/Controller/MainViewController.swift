@@ -104,6 +104,7 @@ extension MainViewController: UICollectionViewDataSource{
             let operationQueue = DispatchQueue(label: "AODUpdater")
             operationQueue.async {
                 let fetchRequest = Item.fetchRequest()
+                
                 fetchRequest.predicate = NSPredicate(format: "indexPathRow == %@", argumentArray: [Int16(indexPath.row)])
                 var fetchedImages: Item?
                 do {
